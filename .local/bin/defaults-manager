@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import sys
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+try:
+    import subprocess
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        pass
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+HELP = """Usage: defaults-manager [MODE] [EXECUTABLE] [DEFAULTS]
+Options:
+    -?, -h, --help  Show this help message and exit.
+
+Other arguments:
+MODE:
+    set     Set the defaults wrapper.
+    reset   Reset the defaults wrapper.
+
+EXECUTABLE: The executable to wrap.
+DEFAULTS: The defaults to pass to the executable.
+
+EXAMPLE(S):
+    defaults-manager set python3 -B
+
+    This will set the defaults wrapper for python3 to be python3 -B.
+
+    defaults-manager reset python3
+
+    This will reset the defaults wrapper for python3.
+"""
+
+WRAPPER = """#!/usr/bin/bash
+
+"{}" {} "$@"
+"""
+
+
+def check_output(command: list[str], *args, **kwargs):
+    """
+    Run a command and return the output as a byte string.
+
+    Args:
+        command (list[str]): The command to run.
+
+    Returns:
+        bytes: The output of the command.
+    """
+    print(" ".join(command))
+    return subprocess.check_output(command, *args, **kwargs)
+
+
+def check_call(command: list[str], *args, **kwargs):
+    """
+    Run a command and wait for it to complete.
+
+    Args:
+        command (list[str]): The command to run.
+
+    Returns:
+        int: The return code of the command.
+    """
+    print(" ".join(command))
+    return subprocess.check_call(
+        command, *args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **kwargs
+    )
+
+
+def set_mode():
+    """
+    Set the defaults wrapper for the specified executable.
+    """
+    global WRAPPER
+
+    EXECUTABLE, *DEFAULTS = ARGV
+
+    DEFAULTS = " ".join(DEFAULTS)
+
+    EXECUTABLE_PATH = check_output(["which", EXECUTABLE]).decode("utf-8").strip()
+    ORIGINAL_EXECUTABLE = EXECUTABLE_PATH + ".original"
+
+    try:
+        if check_call(["sudo", "ls", ORIGINAL_EXECUTABLE]):
+            print("Already wrapped! Please reset first.")
+            sys.exit(1)
+    except subprocess.CalledProcessError:
+        pass
+
+    check_call(["sudo", "mv", EXECUTABLE_PATH, ORIGINAL_EXECUTABLE])
+
+    WRAPPER = WRAPPER.format(ORIGINAL_EXECUTABLE, DEFAULTS)
+
+    with open(f"/tmp/{EXECUTABLE}.tmp", "w") as f:
+        f.write(WRAPPER)
+
+    check_call(["sudo", "mv", f"/tmp/{EXECUTABLE}.tmp", EXECUTABLE_PATH])
+    check_call(["sudo", "chmod", "+x", EXECUTABLE_PATH])
+    check_call(["sudo", "chown", "root:root", EXECUTABLE_PATH])
+
+
+def reset_mode():
+    """
+    Reset the defaults wrapper for the specified executable.
+    """
+    (EXECUTABLE, *_) = ARGV
+
+    EXECUTABLE_PATH = check_output(["which", EXECUTABLE]).decode("utf-8").strip()
+    ORIGINAL_EXECUTABLE = EXECUTABLE_PATH + ".original"
+
+    check_call(["sudo", "mv", ORIGINAL_EXECUTABLE, EXECUTABLE_PATH])
+
+
+MODES = {
+    "set": set_mode,
+    "reset": reset_mode,
+    "-?": lambda: print(HELP),
+    "-h": lambda: print(HELP),
+    "--help": lambda: print(HELP),
+}
+MODES_K = MODES.keys()
+
+try:
+    _, MODE, *ARGV = sys.argv
+except ValueError:
+    print(f"Mode not specified, must be one of {', '.join(MODES_K)!r}.")
+    sys.exit(1)
+
+
+if MODE not in MODES_K:
+    print(f"Mode must be one of {', '.join(MODES_K)!r}.")
+    sys.exit(1)
+else:
+    MODES[MODE]()

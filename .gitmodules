@@ -1,0 +1,3 @@
+[submodule ".conky/Mainte"]
+	path = .conky/Mainte
+	url = https://github.com/AyoItsYas/Mainte.git

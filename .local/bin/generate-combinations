@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+
+def generate_combinations(letters: list[str], length: int = 4):
+    if length == 1:
+        return letters
+    if length > len(letters):
+        return []
+
+    combinations = []
+
+    for letter in letters:
+        combinations += [
+            letter + combination
+            for combination in generate_combinations(letters, length - 1)
+        ]
+
+    return combinations
+
+
+while True:
+    letters, length = [*(input("Enter letters: "))], int(input("Enter length: "))
+    print(" ".join(generate_combinations(letters, length)))

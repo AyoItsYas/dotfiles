@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import sys
+import json
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+CHUNK = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+
+
+output = input()
+
+data = json.loads(output)
+
+
+data: list = data["interfaces"][0]["traffic"]["hour"]
+
+KEY = "rx"
+
+data.sort(key=lambda x: x[KEY])
+
+HOUR_GR = {x: 0 for x in range(0, 24)}
+
+for x in data:
+    HOUR_GR[x["time"]["hour"]] += x[KEY]
+
+
+HOUR_GR = [(h, v) for h, v in HOUR_GR.items()]
+
+HOUR_GR_C = [HOUR_GR[x : x + CHUNK] for x in range(0, len(HOUR_GR), CHUNK)]
+HOUR_GR_C = [((y[0][0], y[-1][0]), sum([v for _, v in y])) for y in HOUR_GR_C]
+
+HOUR_GR_C.sort(key=lambda x: x[0])
+
+for x, y in HOUR_GR_C:
+    print(f"{x[0]:02.0f}:00 - {x[1]:02.0f}:00,{y}")
+    # print(f"{x[0]},{y}")

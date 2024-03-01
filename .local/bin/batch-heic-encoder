@@ -1,0 +1,95 @@
+#!/bin/env python3
+
+import sys
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+try:
+    import time
+    import subprocess
+    from multiprocessing import Pool
+
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+
+def __main__(value: str):
+    if value == "" or value.startswith("#"):
+        return
+
+    FILE = value
+
+    NEW_FILE = ".".join(FILE.split(".")[:-1]) + ".heic"
+
+    command = ("stat", "--printf=%s", FILE)
+    try:
+        FILE_SIZE_X = int(subprocess.check_output(command).decode("utf-8").strip())
+    except subprocess.CalledProcessError:
+        return
+
+    command = ("convert", f"{FILE}", f"{NEW_FILE}")
+    try:
+        subprocess.run(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return
+    else:
+        print(FILE)
+
+    command = ("stat", "--printf=%s", NEW_FILE)
+    try:
+        FILE_SIZE_Y = int(subprocess.check_output(command).decode("utf-8").strip())
+    except subprocess.CalledProcessError:
+        return
+
+    FILE_SIZE_Z = FILE_SIZE_X - FILE_SIZE_Y
+
+    return FILE_SIZE_Z
+
+
+piped = not sys.stdin.isatty()
+
+if not piped:
+    print("This script is meant to handle batch file operations that are piped.")
+    sys.exit(1)
+
+files = []
+while piped:
+    try:
+        files.append(input())
+    except EOFError:
+        break
+
+time_x = time.time()
+files_n = len(files)
+with Pool(4) as p:
+    SIZE = p.map(__main__, files)
+
+    print(f"# Total files processed: {files_n}")
+
+
+def smart_size(size: int) -> str:
+    if size < 1024:
+        return f"{size} bytes"
+    elif size < 1048576:
+        return f"{size / 1024:.2f} KiB"
+    elif size < 1073741824:
+        return f"{size / 1048576:.2f} MiB"
+    elif size < 1099511627776:
+        return f"{size / 1073741824:.2f} GiB"
+    elif size < 1125899906842624:
+        return f"{size / 1099511627776:.2f} TiB"
+    elif size < 1152921504606846976:
+        return f"{size / 1125899906842624:.2f} PiB"
+    else:
+        return f"{size / 1152921504606846976:.2f} EiB"
+
+
+print(f"# Total size saved: {smart_size(sum(SIZE))}")

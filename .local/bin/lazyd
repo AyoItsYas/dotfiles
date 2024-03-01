@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+
+import sys
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+try:
+    import os
+    import json
+    import time
+    import argparse
+
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+BIN_PATH = os.path.realpath(__file__)
+CONFIG_PATH = f"{os.getenv('HOME')}/.config/lazyd"
+
+SYSTEMD_SERVICE = f"""
+[Unit]
+Description=Lazyd service
+
+[Service]
+Type=simple
+ExecStart={sys.executable} {BIN_PATH} daemon
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+
+def install(*, forced: bool = False) -> None:
+    if sys.platform == "linux":
+        if not os.path.exists("/bin/systemctl"):
+            print("Systemd is not installed.")
+            sys.exit(1)
+
+        if forced or not os.path.exists("/etc/systemd/system/lazyd.service"):
+            try:
+                with open("/etc/systemd/system/lazyd.service", "w") as f:
+                    f.write(SYSTEMD_SERVICE)
+            except PermissionError:
+                print("PermissionError: Please run this script as root user.")
+                sys.exit(1)
+
+            os.system("systemctl enable lazyd.service")
+            os.system("systemctl start lazyd.service")
+            os.system("systemctl status lazyd.service")
+        else:
+            print("Lazyd service already installed.")
+            sys.exit(1)
+    else:
+        print("This script is only meant to be run on Linux.")
+        sys.exit(1)
+
+
+def load_config() -> None:
+    if not os.path.exists(CONFIG_PATH):
+        os.makedirs(CONFIG_PATH)
+
+    if not os.path.exists(f"{CONFIG_PATH}/config.json"):
+        with open(f"{CONFIG_PATH}/config.json", "w") as f:
+            f.write(json.dumps({}))
+
+    with open(f"{CONFIG_PATH}/config.json", "r") as f:
+        return json.loads(f.read())
+
+
+def get_tasks() -> dict:
+    if not os.path.exists(CONFIG_PATH):
+        os.makedirs(CONFIG_PATH)
+
+    if not os.path.exists(f"{CONFIG_PATH}/tasks.json"):
+        with open(f"{CONFIG_PATH}/tasks.json", "w") as f:
+            f.write(json.dumps({"tasks": []}))
+
+    with open(f"{CONFIG_PATH}/tasks.json", "r") as f:
+        return json.loads(f.read())
+
+
+def add_task() -> None:
+    raise NotImplementedError
+
+
+def rem_task() -> None:
+    raise NotImplementedError
+
+
+def daemon() -> None:
+    while True:
+        time.sleep(1)
+
+
+MODES = {
+    "add": add_task,
+    "rem": rem_task,
+    "daemon": daemon,
+    "install": install,
+    "force-install": lambda: install(forced=True),
+}
+
+
+parser = argparse.ArgumentParser(description="Lazy compute tasks management tool.")
+
+
+parser.add_argument(
+    "mode",
+    type=str,
+    help="The mode of operation.",
+    metavar="MODE",
+    choices=MODES.keys(),
+)
+
+args = parser.parse_args()
+
+MODES[args.mode]()

@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import sys
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+try:
+    import os
+    import re
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from typing import Callable
+
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+
+def parse_flag(flag: str, *, required: bool = False, invalid_prompt: str = None):
+    try:
+        value = sys.argv[(arg_index := sys.argv.index(flag)) + 1]
+
+        sys.argv.pop(arg_index)  # remove the argument flag
+        sys.argv.pop(arg_index)  # remove the argument value
+
+        return value
+    except ValueError:
+        if required:
+            print(invalid_prompt or f"No value specified for flag '{flag}'.")
+            sys.exit(1)
+
+
+sys.argv.pop(0)  # remove script name
+
+check = parse_flag("-c")
+process = parse_flag("-p", required=True)
+
+PIPED = not sys.stdin.isatty()
+
+
+def __main__(value: str, *, count: Callable = 0):
+    if value == "" or value.startswith("#"):
+        return
+
+    filename = value.split("/")[-1]
+    raw_value = value
+
+    specifiers = {
+        "f": filename,
+        "i": str(count()),
+        "n": str(len(filename)),
+        "re": re,
+    }
+
+    valid = (
+        eval(
+            f"lambda x: {check}",
+            specifiers,
+        )(filename)
+        if check
+        else True
+    )
+
+    if valid:
+        value = eval(f"lambda x: {process}", specifiers)(filename)
+
+        value = "".join(raw_value.split(filename)[:-1]) + value
+
+        if os.path.exists(value):
+            print(f"File '{value}' already exists!")
+            sys.exit(1)
+
+        os.rename(raw_value, value)
+
+
+c = 0
+while PIPED:
+
+    def inc_c():
+        global c
+        return (c := c + 1)
+
+    try:
+        value = input()
+    except EOFError:
+        break
+
+    __main__(value, count=inc_c)
+
+if not PIPED:
+    __main__(sys.argv[0])

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ARGS=("$@")
+
+while read -r FILE; do
+    if [ ! -f "$FILE" ]; then
+        echo "$FILE"
+        continue
+    fi
+
+    rm "$FILE" "${ARGS[@]}" && echo "$FILE"
+done

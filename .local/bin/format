@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+
+import sys
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+try:
+    pass  # import block to import libs
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+
+def format_bytes(value: str):
+    try:
+        size = int(value)
+    except ValueError:
+        print("Invalid value specified!")
+        sys.exit(1)
+
+    power = 2**10
+    n = 0
+    power_labels = {0: "", 1: "K", 2: "M", 3: "G", 4: "T"}
+    while size > power:
+        size /= power
+        n += 1
+    return f"{size:.2f} {power_labels[n]}B"
+
+
+def format_fstring(value: str):
+    value, format_spec = value.split(":", 1)
+    return format(eval(value), format_spec)
+
+
+sys.argv.pop(0)  # remove script name
+
+formatters = {
+    "bytes": format_bytes,
+    "fstring": format_fstring,
+    "test": lambda x: x,
+}
+
+try:
+    formatter = sys.argv[(x := sys.argv.index("-f")) + 1]
+
+    sys.argv.pop(x)  # remove -f
+    sys.argv.pop(x)  # remove formatter
+
+except ValueError:
+    print("No format specified!")
+    sys.exit(1)
+
+if formatter not in formatters:
+    print(
+        "Unknown format specified! Supported formats are:",
+        ", ".join(formatters.keys()),
+    )
+    sys.exit(1)
+
+
+def __main__(value: str):
+    print(formatters[formatter](value))
+
+
+piped = not sys.stdin.isatty()
+
+while piped:
+    try:
+        value = input()
+    except EOFError:
+        break
+
+    __main__(value)
+
+if not piped:
+    __main__(sys.argv[0])
+
+sys.exit(0)

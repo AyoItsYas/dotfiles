@@ -1,0 +1,93 @@
+#!/bin/env python3
+
+import sys
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+try:
+    import subprocess
+    from multiprocessing import Pool
+
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+
+def __main__(value: str):
+    if value == "" or value.startswith("#"):
+        return
+
+    FILE = value
+
+    command = (
+        "ffprobe",
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=codec_name",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        FILE,
+    )
+
+    try:
+        CODEC = (
+            subprocess.check_output(command, stderr=subprocess.DEVNULL)
+            .decode("utf-8")
+            .strip()
+        )
+    except subprocess.CalledProcessError:
+        return
+
+    if CODEC == "hevc":
+        return
+
+    NEW_FILE = ".".join(FILE.replace(".x264", "").split(".")[:-1])
+    NEW_FILE += ".x265.HEVC."
+    NEW_FILE += FILE.split(".")[-1]
+
+    command = (
+        "ffmpeg",
+        "-i",
+        FILE,
+        "-c:v",
+        "libx265",
+        "-vtag",
+        "hvc1",
+        "-map_metadata",
+        "0",
+        NEW_FILE,
+        "-y",
+    )
+    try:
+        subprocess.run(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return
+    else:
+        print(FILE)
+
+
+piped = not sys.stdin.isatty()
+
+if not piped:
+    print("This script is meant to handle batch file operations that are piped.")
+    sys.exit(1)
+
+files = []
+while piped:
+    try:
+        files.append(input())
+    except EOFError:
+        break
+
+with Pool(4) as p:
+    p.map(__main__, files)

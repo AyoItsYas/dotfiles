@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+
+import code
+import subprocess
+import sys
+import os
+
+
+class Prompt:
+    def __init__(self):
+        self.__prompt = lambda x=[]: subprocess.check_output(
+            [
+                "oh-my-posh",
+                "print",
+                "primary",
+                "--shell",
+                f"python ({'.'.join(str(x) for x in sys.version_info[:3])})",
+            ]
+            + x
+        ).decode("utf-8")
+
+    def __str__(self):
+        return self.__prompt()
+
+    def __call__(self, x: list = []):
+        return self.__prompt(x)
+
+
+class GlobeFilterConsole(code.InteractiveConsole):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.__prompt = Prompt()
+
+        sys.ps1 = Prompt()
+
+    def runsource(self, source, filename="<input>", symbol="single"):
+        """Compile and run some source in the interpreter.
+
+        Arguments are as for compile_command().
+
+        One of several things can happen:
+
+        1) The input is incorrect; compile_command() raised an
+        exception (SyntaxError or OverflowError).  A syntax traceback
+        will be printed by calling the showsyntaxerror() method.
+
+        2) The input is incomplete, and more input is required;
+        compile_command() returned None.  Nothing happens.
+
+        3) The input is complete; compile_command() returned a code
+        object.  The code is executed by calling self.runcode() (which
+        also handles run-time exceptions, except for SystemExit).
+
+        The return value is True in case 2, False in the other cases (unless
+        an exception is raised).  The return value can be used to
+        decide whether to use sys.ps1 or sys.ps2 to prompt the next
+        line.
+
+        """
+        try:
+            code = self.compile(source, filename, symbol)
+        except (OverflowError, SyntaxError, ValueError):
+            # Case 1
+            process = subprocess.run(self.buffer[-1], shell=True, capture_output=True)
+            return_code = process.returncode
+
+            if return_code > 0:
+                self.showsyntaxerror(filename)
+            else:
+                self.write(process.stdout.decode("utf-8"))
+
+            return False
+
+        if code is None:
+            # Case 2
+            return True
+
+        # Case 3
+        self.runcode(code)
+        return False
+
+    def runcode(self, code):
+        """Execute a code object.
+
+        When an exception occurs, self.showtraceback() is called to
+        display a traceback.  All exceptions are caught except
+        SystemExit, which is reraised.
+
+        A note about KeyboardInterrupt: this exception may occur
+        elsewhere in this code, and may not always be caught.  The
+        caller should be prepared to deal with it.
+
+        """
+        try:
+            exec(code, self.locals)
+        except SystemExit:
+            raise
+        except Exception:
+            process = subprocess.run(self.buffer[-1], shell=True, capture_output=True)
+            return_code = process.returncode
+
+            if return_code > 0:
+                self.showtraceback()
+            else:
+                self.write(process.stdout.decode("utf-8"))
+
+    def write(self, data: str):
+        """Write a string.
+
+        The base implementation writes to sys.stderr; a subclass may
+        replace this with a different implementation.
+
+        """
+
+        sys.stderr.write(data)
+
+    def raw_input(self, prompt: str = None):
+        """Write a prompt and read a line.
+
+        The returned line does not include the trailing newline.
+        When the user enters the EOF key sequence, EOFError is raised.
+
+        The base implementation uses the built-in function
+        input(); a subclass may replace this with a different
+        implementation.
+
+        """
+        return input(prompt or self.__prompt())
+
+
+class cls(object):
+    def __repr__(self):
+        os.system("cls" if os.name == "nt" else "clear")
+        return ""
+
+
+class exit(object):
+    exit = exit  # original object
+
+    def __repr__(self):
+        self.exit()  # call original
+        return ""
+
+
+quit = exit = exit()
+clear = cls = cls()
+
+
+console = GlobeFilterConsole(
+    locals={"cls": cls, "clear": clear, "exit": exit, "quit": exit}
+)
+console.interact(banner="", exitmsg="")

@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import sys
+
+try:
+    import argparse
+    import os
+    import subprocess
+    import time
+
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        pass
+except ImportError as e:
+    print("ImportError: {}".format(e))
+    sys.exit(1)
+
+
+if __name__ != "__main__":
+    print("This script is not meant to be imported.")
+    sys.exit(1)
+
+PID_FILE = "/tmp/conkyd.pid"
+LOG_FILE = "/tmp/conkyd.log"
+CONKY_FOLDER = f"{os.getenv('HOME')}/.conky"
+
+
+def conkyd_start() -> None:
+    global CONKY_FOLDER
+
+    overlays = []
+
+    def search(directory: str) -> None:
+        for item in os.listdir(directory):
+            path = f"{directory}/{item}"
+
+            if os.path.isdir(path):
+                search(path)
+            elif os.path.isfile(path) and item.endswith("conkyrc"):
+                overlays.append(path)
+
+    search(CONKY_FOLDER)
+
+    for overlay in overlays:
+        theme_folder = "/".join(overlay.split("/")[:-1])
+        subprocess.Popen(
+            ["conky", "-c", overlay, "-d"],
+            cwd=theme_folder,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).wait()
+        print(f"Started {overlay}")
+
+
+def conkyd_kill() -> None:
+    subprocess.Popen(["killall", "conky"])
+
+
+def conkyd_restart() -> None:
+    conkyd_kill()
+    conkyd_start()
+
+
+def conkyd_stop() -> None:
+    subprocess.Popen(["killall", "-STOP", "conky"])
+
+
+def conkyd_continue() -> None:
+    subprocess.Popen(["killall", "-CONT", "conky"])
+
+
+def conkyd_monitor_loop() -> None:
+    # cores = os.cpu_count()
+
+    # thresh = 0.8 * (cores * 2)
+    thresh = 5
+
+    stopped, stopped_ts = False, None
+    while True:
+        load = open("/proc/loadavg").read().split(" ")[:3]
+        load = [float(i) for i in load]
+
+        rising = False
+
+        for i in range(2):
+            if load[i] > thresh:
+                rising = True
+                break
+
+            if load[i] > load[i + 1]:
+                rising = True
+
+        if rising and load[0] > thresh:
+            conkyd_stop()
+
+            stopped, stopped_ts = True, time.time()
+
+        elif stopped and (time.time() - stopped_ts) > 120:
+            conkyd_continue()
+            time.sleep(5)
+            conkyd_stop()
+
+            stopped, stopped_ts = True, time.time()
+
+        else:
+            conkyd_continue()
+
+            stopped, stopped_ts = False, None
+
+        time.sleep(30)
+
+
+def conkyd_monitor() -> None:
+    if os.fork() == 0:
+        conkyd_monitor_loop()
+
+
+MODES = {
+    "kill": conkyd_kill,
+    "monitor": conkyd_monitor,
+    "restart": conkyd_restart,
+    "start": conkyd_start,
+    "stop": conkyd_stop,
+    "continue": conkyd_continue,
+}
+
+parser = argparse.ArgumentParser(description="Run conky themes with ease.")
+
+parser.add_argument(
+    "mode",
+    metavar="MODE",
+    type=str,
+    choices=MODES.keys(),
+)
+
+parser.add_argument(
+    "-d",
+    metavar="DIR",
+    type=str,
+    nargs="*",
+    help="directory containing conkyrc files",
+    default=CONKY_FOLDER,
+    dest="dir",
+)
+
+
+args = parser.parse_args()
+
+CONKY_FOLDER = args.dir
+
+MODES[args.mode]()
