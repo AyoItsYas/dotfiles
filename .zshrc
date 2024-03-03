@@ -210,11 +210,8 @@ fi
 
 # zsh plugins
 
-#source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-#source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # !!! must be the last plugin sourced
-
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # !!! must be the last plugin sourced
 
 source ~/.env
 
@@ -225,7 +222,3 @@ copilot_suggestion() {
 
 zle -N copilot_suggestion
 bindkey '^A' copilot_suggestion
-
-command_not_found_handler() {
-	findpkg "$1"
-}

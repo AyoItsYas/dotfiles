@@ -466,7 +466,7 @@ fi
 
 # setting up 3rd party terminal tools/mnt/9275c84f-279a-4dd7-b9fd-dca73b6df9a6/
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # eval "$(thefuck --alias fuck)"
 eval "$(zoxide init bash)"

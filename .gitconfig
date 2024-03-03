@@ -1,0 +1,5 @@
+[user]
+	name = Yasiru Dharmathilaka
+	email = yasiru.dharmathilaka@gmail.com
+[core]
+	excludesFile = .gitignore

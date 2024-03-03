@@ -1,0 +1,15 @@
+# This file is written by xdg-user-dirs-update
+# If you want to change or add directories, just edit the line you're
+# interested in. All local changes will be retained on the next run.
+# Format is XDG_xxx_DIR="/mnt/mass/yasiru/yyy", where yyy is a shell-escaped
+# homedir-relative path, or XDG_xxx_DIR="/yyy", where /yyy is an
+# absolute path. No other format is supported.
+#
+XDG_DESKTOP_DIR="/mnt/mass/yasiru/Desktop"
+XDG_DOWNLOAD_DIR="/mnt/mass/yasiru/Downloads"
+XDG_TEMPLATES_DIR="/mnt/mass/yasiru/Templates"
+XDG_PUBLICSHARE_DIR="/mnt/mass/yasiru/Public"
+XDG_DOCUMENTS_DIR="/mnt/mass/yasiru/Documents"
+XDG_MUSIC_DIR="/mnt/mass/yasiru/Music"
+XDG_PICTURES_DIR="/mnt/mass/yasiru/Pictures"
+XDG_VIDEOS_DIR="/mnt/mass/yasiru/Videos"
