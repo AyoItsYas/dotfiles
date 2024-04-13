@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+VPN_UUID=$(nmcli connection show | grep -i "vpn" | awk '{print $4}')
+VPN_ACTIVE=$(nmcli connection show --active | grep -i "vpn" | wc -l)
+
+if [ "$VPN_ACTIVE" -eq 1 ]; then
+    nmcli connection down uuid "$VPN_UUID"
+    STATUS="disconnected"
+else
+    nmcli connection up uuid "$VPN_UUID"
+    STATUS="connected"
+fi
+
+PUBLIC_IP=$(curl -s ifconfig.me)
+notify-send "Toggle VPN" "VPN $STATUS Public IP: $PUBLIC_IP" --icon=dialog-information

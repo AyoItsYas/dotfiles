@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+
+SINKS=$(pactl list sinks | grep -E 'Name:|State:')
+
+SINK_LIST=()
+SINK_STATES=()
+
+RUNNING_SINK_INDEX=0
+
+while read -r line; do
+    if [[ "$line" == "State: "* ]]; then
+        SINK_STATES+=("$(echo "$line" | cut -d ' ' -f 2)")
+
+        if [[ "$(echo "$line" | cut -d ' ' -f 2)" == "RUNNING" ]]; then
+            RUNNING_SINK_INDEX=${#SINK_STATES[@]}
+        fi
+
+    elif [[ "$line" == "Name: "* ]]; then
+        SINK_LIST+=("$(echo "$line" | cut -d ' ' -f 2)")
+    fi
+done <<<"$SINKS"
+
+echo "Sinks: ${SINK_LIST[*]}"
+echo "States: ${SINK_STATES[*]}"
+
+if [[ $RUNNING_SINK_INDEX -eq $((${#SINK_LIST[@]})) ]]; then
+    NEXT_SINK=${SINK_LIST[0]}
+else
+    NEXT_SINK=${SINK_LIST[$((RUNNING_SINK_INDEX + 1))]}
+fi
+
+echo "Switching to sink: $NEXT_SINK"
+
+pactl set-default-sink "$NEXT_SINK"
+
+NEXT_SINK_DESCRIPTION=$(pactl list sinks | grep -A 5 "Name: $NEXT_SINK" | grep Description | cut -d ':' -f 2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+notify-send "Toggle Audio Output" "Output sink switched to '$NEXT_SINK_DESCRIPTION'" --icon=audio-volume-high

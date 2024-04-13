@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+IS_AUTO=$(nbfc status | grep -i "Auto Control Enabled" | grep "true" | wc -l)
+
+if [ "$IS_AUTO" -eq 1 ]; then
+    MODE="full speed"
+    pkexec nbfc set -s 100
+else
+    MODE="automatic control"
+    pkexec nbfc set -a
+fi
+
+notify-send "Toggle Fanspeed" "Fanspeed toggled to $MODE." -a "Fanspeed Toggle Hotkey" -t 5 --icon=dialog-information
