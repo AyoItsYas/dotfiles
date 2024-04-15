@@ -23,11 +23,13 @@ done <<<"$SINKS"
 echo "Sinks: ${SINK_LIST[*]}"
 echo "States: ${SINK_STATES[*]}"
 
-if [[ $RUNNING_SINK_INDEX -eq $((${#SINK_LIST[@]})) ]]; then
+if [[ $((RUNNING_SINK_INDEX)) -eq ${#SINK_LIST[@]} ]]; then
     NEXT_SINK=${SINK_LIST[0]}
 else
-    NEXT_SINK=${SINK_LIST[$((RUNNING_SINK_INDEX + 1))]}
+    NEXT_SINK=${SINK_LIST[$((RUNNING_SINK_INDEX))]}
 fi
+
+echo "Index: $RUNNING_SINK_INDEX"
 
 echo "Switching to sink: $NEXT_SINK"
 
