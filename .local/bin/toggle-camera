@@ -21,4 +21,4 @@ else
     STATUS="enabled"
 fi
 
-notify-send "Camera & Face Recognition Toggle" "Camera & Face Recognition is $STATUS." -a "Camera Toggle Hotkey" -t 5 --icon=video-display
+notify-send "Camera & Face Recognition Toggle" "Camera & Face Recognition is $STATUS." -a "Camera Toggle Hotkey" -t 5 --icon=video-display -u critical

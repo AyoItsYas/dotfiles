@@ -20,4 +20,4 @@ ACTIVE_INTERFACE=$(ip route get 1.1.1.1 | awk '{print $5}')
 CURR_MAC=$(macchanger -s "$ACTIVE_INTERFACE" | grep Curr | awk '{print $3}')
 PERM_MAC=$(macchanger -s "$ACTIVE_INTERFACE" | grep Perm | awk '{print $3}')
 
-notify-send "Toggle MAC Address Mode" "Mac address mode toggled to $MODE current MAC is $CURR_MAC ($PERM_MAC perm)" -t 5
+notify-send "Toggle MAC Address Mode" "Mac address mode toggled to $MODE current MAC is $CURR_MAC ($PERM_MAC perm)" -t 5 -u critical

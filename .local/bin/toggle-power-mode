@@ -12,4 +12,4 @@ fi
 
 system76-power profile "$NEXT_PROFILE"
 
-notify-send "Toggle Power Mode" "Power mode toggled to $NEXT_PROFILE." -a "Power Mode Toggle Hotkey" -t 5 --icon=dialog-information
+notify-send "Toggle Power Mode" "Power mode toggled to $NEXT_PROFILE." -a "Power Mode Toggle Hotkey" -t 5 --icon=dialog-information -u critical
