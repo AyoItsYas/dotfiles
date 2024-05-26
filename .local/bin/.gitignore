@@ -3,3 +3,7 @@ onedrive-gui
 tlauncher
 TLauncher-*.jar
 monero*
+tabulate
+*.swp
+ffmpeg
+ffprobe

@@ -1,5 +1,15 @@
 [user]
 	name = Yasiru Dharmathilaka
 	email = yasiru.dharmathilaka@gmail.com
+	signingkey = 988D0BDF72A81865
 [core]
 	excludesFile = .gitignore
+[commit]
+	gpgsign = true
+[credential]
+	credentialStore = gpg
+	helper = cache
+[pull]
+	rebase = false
+[init]
+	defaultBranch = main

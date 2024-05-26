@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+
+DISPLAYX=2400
+DISPLAYY=1080
+
+SCALE=3
+
+X=$(expr $DISPLAYX / $SCALE)
+Y=$(expr $DISPLAYY / $SCALE)
+
+echo "X: $X"
+echo "Y: $Y"
+
+OUT=$(cvt "$X" "$Y" "90C")
+
+MODELINE=$(echo "$OUT" | grep Modeline | sed 's/Modeline //')
+MODE="$(echo "$MODELINE" | cut -d ' ' -f 1 | sed 's/\"//g')"
+RES=$(echo "$MODE" | cut -d '_' -f 1)
+
+echo "MODELINE: $MODELINE"
+
+xrandr --newmode "$MODELINE"
+
+if [ $? -ne 0 ]; then
+    echo "Failed to add mode"
+    exit 1
+fi
+
+xrandr --addmode VIRTUAL1 $MODE
+
+if [ $? -ne 0 ]; then
+    echo "Failed to add mode"
+    exit 1
+fi
+
+xrandr --output VIRTUAL1 --mode $MODE
+
+if [ $? -ne 0 ]; then
+    echo "Failed to set mode"
+    exit 1
+fi
+
+x11vnc -clip "$RES+1920+1080" -ncache
