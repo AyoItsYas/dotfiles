@@ -36,4 +36,4 @@ echo "Switching to sink: $NEXT_SINK"
 pactl set-default-sink "$NEXT_SINK"
 
 NEXT_SINK_DESCRIPTION=$(pactl list sinks | grep -A 5 "Name: $NEXT_SINK" | grep Description | cut -d ':' -f 2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-notify-send "Toggle Audio Output" "Output sink switched to '$NEXT_SINK_DESCRIPTION'" --icon=audio-volume-high -u critical
+notify-send "Toggle Audio Output" "Output sink switched to '$NEXT_SINK_DESCRIPTION'" --icon=audio-volume-high

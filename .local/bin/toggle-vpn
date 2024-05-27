@@ -12,4 +12,4 @@ else
 fi
 
 PUBLIC_IP=$(curl -s ifconfig.me)
-notify-send "Toggle VPN" "VPN $STATUS Public IP: $PUBLIC_IP" --icon=dialog-information -u critical
+notify-send "Toggle VPN" "VPN $STATUS Public IP: $PUBLIC_IP" --icon=dialog-information

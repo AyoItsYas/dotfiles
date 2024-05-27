@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+import whisper
+import ollama
+import subprocess
+import speech_recognition as sr
+
+_print = print
+
+
+def print(*args, **kwargs):
+    _print(*args, **kwargs)
+
+    subprocess.Popen(
+        [
+            "notify-send",
+            "Voice Assistant",
+            f"{' '.join(args)}",
+            "-t",
+            "5",
+            "--icon=dialog-information",
+        ]
+    )
+
+
+def speak(text):
+    subprocess.Popen(["espeak", f"{text}", "-g", "12"])
+
+
+recognizer, microphone = sr.Recognizer(), sr.Microphone()
+model = whisper.load_model("tiny.en", in_memory=True)
+
+with microphone as source:
+    try:
+        print("Listening...")
+        speak("What can I do for you?")
+        audio = recognizer.listen(source, timeout=10)
+    except sr.WaitTimeoutError:
+        print("Timeout!")
+        speak("I'm sorry, I didn't hear anything.")
+
+speak("I'm processing your request.")
+
+with open("/tmp/audio.wav", "wb") as f:
+    f.write(audio.get_wav_data())
+
+
+audio = whisper.load_audio("/tmp/audio.wav")
+
+text = model.transcribe(audio)["text"]
+print(text)
+
+
+response = ollama.chat(
+    model="tinydolphin:latest",
+    messages=[
+        {
+            "role": "system",
+            "content": """
+            You are a digital assistant.
+            Talk to the user with a very short, consise message.
+            If the input is not clear or missing information, respond with "I'm sorry, I didn't understand that."
+
+            The user talks to you he said the following: "{}",
+            """.format(
+                text
+            ),
+        },
+    ],
+)
+
+print(response["message"]["content"])
+speak(response["message"]["content"])

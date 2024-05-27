@@ -10,4 +10,4 @@ else
     pkexec nbfc set -a
 fi
 
-notify-send "Toggle Fanspeed" "Fanspeed toggled to $MODE." -a "Fanspeed Toggle Hotkey" -t 5 --icon=dialog-information -u critical
+notify-send "Toggle Fanspeed" "Fanspeed toggled to $MODE." -a "Fanspeed Toggle Hotkey" -t 5 --icon=dialog-information
