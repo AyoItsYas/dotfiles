@@ -1,15 +1,43 @@
 #!/usr/bin/env python3
 
-import whisper
-import ollama
-import subprocess
-import speech_recognition as sr
+try:
+    import whisper
+    import ollama
+    import subprocess
+    import datetime
+    import requests
+    import os
+    import sys
+    import webbrowser
+    import speech_recognition as sr
+except ImportError as e:
+    requirements = [
+        "whisper",
+        "ollama",
+        "requests",
+        "speech_recognition",
+        "pyaudio",
+        "espeak",
+        "pyperclip",
+    ]
 
-_print = print
+    print(
+        f"Please install the following requirements using the command `pip3 install {' '.join(requirements)}`"
+    )
+
+if __name__ != "__main__":
+    exit(0)
 
 
-def print(*args, **kwargs):
-    _print(*args, **kwargs)
+if not os.path.exists("/tmp/voice-assistant.pid"):
+    print(
+        "Voice Assistant is not running. Starting the Voice Assistant in the background."
+    )
+    subprocess.Popen(["python3", sys.argv[0], "--listen"])
+
+
+def alert(*args, **kwargs):
+    print(*args, **kwargs)
 
     subprocess.Popen(
         [
@@ -27,47 +55,158 @@ def speak(text):
     subprocess.Popen(["espeak", f"{text}", "-g", "12"])
 
 
-recognizer, microphone = sr.Recognizer(), sr.Microphone()
-model = whisper.load_model("tiny.en", in_memory=True)
+def listen():
+    recognizer, microphone = sr.Recognizer(), sr.Microphone()
 
-with microphone as source:
+    with microphone as source:
+        try:
+            audio = recognizer.listen(source, timeout=10)
+        except sr.WaitTimeoutError:
+            return
+
+    with open("/tmp/audio.wav", "wb") as f:
+        f.write(audio.get_wav_data())
+
+    model = whisper.load_model("small.en", in_memory=True)
+
+    audio = whisper.load_audio("/tmp/audio.wav")
+
+    return model.transcribe(audio)["text"]
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "--listen":
+
+    def exit_handler():
+        os.remove("/tmp/voice-assistant.pid")
+
+    import atexit
+
+    atexit.register(exit_handler)
+
+    pid = os.getpid()
+
+    os.system("touch /tmp/voice-assistant.pid")
+    os.system("touch /tmp/voice-assistant.txt")
+
     try:
-        print("Listening...")
-        speak("What can I do for you?")
-        audio = recognizer.listen(source, timeout=10)
-    except sr.WaitTimeoutError:
-        print("Timeout!")
-        speak("I'm sorry, I didn't hear anything.")
+        with open("/tmp/voice-assistant.pid", "w") as f:
+            f.write(str(pid))
+    except Exception as e:
+        alert(e)
+        exit(0)
 
-speak("I'm processing your request.")
+    while True:
+        text = listen()
 
-with open("/tmp/audio.wav", "wb") as f:
-    f.write(audio.get_wav_data())
+        if text and len(text) > 0:
+            with open("/tmp/voice-assistant.txt", "a") as f:
+                f.write(text + "\n")
 
 
-audio = whisper.load_audio("/tmp/audio.wav")
+try:
+    with open("/tmp/voice-assistant.txt", "r") as f:
+        text = f.readlines()[-1]
+except FileNotFoundError:
+    exit(0)
 
-text = model.transcribe(audio)["text"]
-print(text)
 
+text_lower = text.lower()
+alert(text)
+
+if "google" in text_lower:
+    query = text_lower.replace("google", "").strip()
+
+    webbrowser.open(f"https://www.google.com/search?q={query}")
+    exit(0)
+
+if "youtube" in text_lower:
+    import webbrowser
+
+    query = text_lower.replace("youtube", "").strip()
+
+    webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
+    exit(0)
+
+
+prompt = ""
+
+
+prompt += f"Today's date is {datetime.datetime.now().strftime('%Y-%m-%d')}"
+prompt += f"\nCurrent time is {datetime.datetime.now().strftime('%H:%M:%S')}"
+
+
+def get_clipboard():
+    import pyperclip
+
+    return pyperclip.paste()
+
+
+if "explain" in text_lower:
+    data = get_clipboard()
+
+    prompt += f"\n\nExplain the following text,\n```\n{data}```"
+
+if "summary" in text_lower:
+    data = get_clipboard()
+
+    prompt += f"\n\nSummarize the following text,\n```\n{data}```"
+
+if "clipboard" in text_lower:
+    data = get_clipboard()
+
+    prompt += f"\n\nAnswer user's clipboard questions using the clipboard data given below,\n```\n{data}```"
+
+if "weather" in text_lower:
+    import json
+
+    OPENWEATHERMAP_LOCATION = os.getenv("OPENWEATHERMAP_LOCATION")
+    OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY")
+
+    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    city_name = "Meepe"
+    complete_url = (
+        base_url + "appid=" + OPENWEATHERMAP_API_KEY + "&q=" + OPENWEATHERMAP_LOCATION
+    )
+    response = requests.get(complete_url)
+    data = response.json()
+
+    data = {
+        "main": data["main"],
+        "sunrise": datetime.datetime.fromtimestamp(data["sys"]["sunrise"]).strftime(
+            "%H:%M:%S"
+        ),
+        "sunset": datetime.datetime.fromtimestamp(data["sys"]["sunset"]).strftime(
+            "%H:%M:%S"
+        ),
+        "weather": data["weather"],
+        "wind": data["wind"],
+        "visibility": data["visibility"],
+        "name": data["name"],
+        "country": data["sys"]["country"],
+    }
+
+    prompt += f"\n\nAnswer user's weather questions by using  today's weather information given below,\n```json\n{json.dumps(data, indent=4, sort_keys=True)}\n```"
+
+print(prompt)
 
 response = ollama.chat(
-    model="tinydolphin:latest",
+    model="qwen:0.5b",
     messages=[
         {
             "role": "system",
-            "content": """
-            You are a digital assistant.
-            Talk to the user with a very short, consise message.
-            If the input is not clear or missing information, respond with "I'm sorry, I didn't understand that."
+            "content": f"""
+                {prompt}
 
-            The user talks to you he said the following: "{}",
-            """.format(
-                text
-            ),
+                This is a smart personal assistant.
+                Keep your answers brief and do not apologize.
+                """,
+        },
+        {
+            "role": "user",
+            "content": text,
         },
     ],
-)
+)["message"]["content"]
 
-print(response["message"]["content"])
-speak(response["message"]["content"])
+alert(response)
+speak(response)
