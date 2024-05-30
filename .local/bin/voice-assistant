@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+import time
+import json
+import atexit
+import subprocess
+
 try:
+    import threading
     import whisper
     import ollama
-    import subprocess
     import datetime
     import requests
-    import os
-    import sys
     import webbrowser
     import speech_recognition as sr
 except ImportError as e:
@@ -29,13 +34,6 @@ if __name__ != "__main__":
     exit(0)
 
 
-if not os.path.exists("/tmp/voice-assistant.pid"):
-    print(
-        "Voice Assistant is not running. Starting the Voice Assistant in the background."
-    )
-    subprocess.Popen(["python3", sys.argv[0], "--listen"])
-
-
 def alert(*args, **kwargs):
     print(*args, **kwargs)
 
@@ -51,88 +49,22 @@ def alert(*args, **kwargs):
     )
 
 
+OLLAMA_MODEL = os.getenv("VOICE_ASSISTANT_OLLAMA_MODEL", "qwen:0.5b")
+WHISPER_MODEL = os.getenv("VOICE_ASSISTANT_WHISPER_MODEL", "small.en")
+ACTIVATION_KEYWORD = os.getenv("VOICE_ASSISTANT_ACTIVATION_KEYWORD", "hey computer")
+
+OPENWEATHERMAP_LOCATION = os.getenv("OPENWEATHERMAP_LOCATION")
+OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY")
+
+if not OPENWEATHERMAP_LOCATION or not OPENWEATHERMAP_API_KEY:
+    alert(
+        "Please set the environment variables OPENWEATHERMAP_LOCATION and OPENWEATHERMAP_API_KEY"
+    )
+    exit(0)
+
+
 def speak(text):
     subprocess.Popen(["espeak", f"{text}", "-g", "12"])
-
-
-def listen():
-    recognizer, microphone = sr.Recognizer(), sr.Microphone()
-
-    with microphone as source:
-        try:
-            audio = recognizer.listen(source, timeout=10)
-        except sr.WaitTimeoutError:
-            return
-
-    with open("/tmp/audio.wav", "wb") as f:
-        f.write(audio.get_wav_data())
-
-    model = whisper.load_model("small.en", in_memory=True)
-
-    audio = whisper.load_audio("/tmp/audio.wav")
-
-    return model.transcribe(audio)["text"]
-
-
-if len(sys.argv) > 1 and sys.argv[1] == "--listen":
-
-    def exit_handler():
-        os.remove("/tmp/voice-assistant.pid")
-
-    import atexit
-
-    atexit.register(exit_handler)
-
-    pid = os.getpid()
-
-    os.system("touch /tmp/voice-assistant.pid")
-    os.system("touch /tmp/voice-assistant.txt")
-
-    try:
-        with open("/tmp/voice-assistant.pid", "w") as f:
-            f.write(str(pid))
-    except Exception as e:
-        alert(e)
-        exit(0)
-
-    while True:
-        text = listen()
-
-        if text and len(text) > 0:
-            with open("/tmp/voice-assistant.txt", "a") as f:
-                f.write(text + "\n")
-
-
-try:
-    with open("/tmp/voice-assistant.txt", "r") as f:
-        text = f.readlines()[-1]
-except FileNotFoundError:
-    exit(0)
-
-
-text_lower = text.lower()
-alert(text)
-
-if "google" in text_lower:
-    query = text_lower.replace("google", "").strip()
-
-    webbrowser.open(f"https://www.google.com/search?q={query}")
-    exit(0)
-
-if "youtube" in text_lower:
-    import webbrowser
-
-    query = text_lower.replace("youtube", "").strip()
-
-    webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
-    exit(0)
-
-
-prompt = ""
-
-
-prompt += f"Today's date is {datetime.datetime.now().strftime('%Y-%m-%d')}"
-prompt += f"\nCurrent time is {datetime.datetime.now().strftime('%H:%M:%S')}"
 
 
 def get_clipboard():
@@ -141,72 +73,166 @@ def get_clipboard():
     return pyperclip.paste()
 
 
-if "explain" in text_lower:
-    data = get_clipboard()
+def listen(recognizer, microphone, model):
+    with microphone as source:
+        audio = recognizer.listen(source, timeout=10)
 
-    prompt += f"\n\nExplain the following text,\n```\n{data}```"
+    with open("/tmp/audio.wav", "wb") as f:
+        f.write(audio.get_wav_data())
 
-if "summary" in text_lower:
-    data = get_clipboard()
+    audio = whisper.load_audio("/tmp/audio.wav")
 
-    prompt += f"\n\nSummarize the following text,\n```\n{data}```"
+    return model.transcribe(audio)["text"]
 
-if "clipboard" in text_lower:
-    data = get_clipboard()
 
-    prompt += f"\n\nAnswer user's clipboard questions using the clipboard data given below,\n```\n{data}```"
+def process_text(text: str):
+    text_lower = text.lower()
+    alert(text)
 
-if "weather" in text_lower:
-    import json
+    if "google" in text_lower:
+        query = text_lower.replace("google", "").strip()
 
-    OPENWEATHERMAP_LOCATION = os.getenv("OPENWEATHERMAP_LOCATION")
-    OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY")
+        webbrowser.open(f"https://www.google.com/search?q={query}")
+        exit(0)
 
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    city_name = "Meepe"
-    complete_url = (
-        base_url + "appid=" + OPENWEATHERMAP_API_KEY + "&q=" + OPENWEATHERMAP_LOCATION
+    if "youtube" in text_lower:
+        query = text_lower.replace("youtube", "").strip()
+
+        webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
+        exit(0)
+
+    prompt = ""
+
+    prompt += f"Today's date is {datetime.datetime.now().strftime('%Y-%m-%d')}"
+    prompt += f"\nCurrent time is {datetime.datetime.now().strftime('%H:%M:%S')}"
+
+    if "explain" in text_lower:
+        data = get_clipboard()
+
+        prompt += f"\n\nExplain the following text,\n```\n{data}```"
+
+    if "summary" in text_lower:
+        data = get_clipboard()
+
+        prompt += f"\n\nSummarize the following text,\n```\n{data}```"
+
+    if "clipboard" in text_lower:
+        data = get_clipboard()
+
+        prompt += f"\n\nAnswer user's clipboard questions using the clipboard data given below,\n```\n{data}```"
+
+    if "weather" in text_lower:
+        base_url = "http://api.openweathermap.org/data/2.5/weather?"
+        complete_url = (
+            base_url
+            + "appid="
+            + OPENWEATHERMAP_API_KEY
+            + "&q="
+            + OPENWEATHERMAP_LOCATION
+        )
+        response = requests.get(complete_url)
+        data = response.json()
+
+        data = {
+            "main": data["main"],
+            "sunrise": datetime.datetime.fromtimestamp(data["sys"]["sunrise"]).strftime(
+                "%H:%M:%S"
+            ),
+            "sunset": datetime.datetime.fromtimestamp(data["sys"]["sunset"]).strftime(
+                "%H:%M:%S"
+            ),
+            "weather": data["weather"],
+            "wind": data["wind"],
+            "visibility": data["visibility"],
+            "name": data["name"],
+            "country": data["sys"]["country"],
+        }
+
+        prompt += f"\n\nAnswer user's weather questions by using  today's weather information given below,\n```json\n{json.dumps(data, indent=4, sort_keys=True)}\n```"
+
+    print(prompt)
+
+    response = ollama.chat(
+        model=OLLAMA_MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": f"""
+                    {prompt}
+
+                    This is a smart personal assistant.
+                    Keep your answers brief and do not apologize.
+                    """,
+            },
+            {
+                "role": "user",
+                "content": text,
+            },
+        ],
+    )["message"]["content"]
+
+    alert(response)
+    speak(response)
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "--deamon":
+    os.system("touch /tmp/voice-assistant.pid")
+    os.system("touch /tmp/voice-assistant.txt")
+
+    def exit_handler():
+        os.remove("/tmp/voice-assistant.pid")
+        os.remove("/tmp/voice-assistant.txt")
+        os.remove("/tmp/audio.wav")
+
+    atexit.register(exit_handler)
+
+    pid = os.getpid()
+
+    try:
+        with open("/tmp/voice-assistant.pid", "w") as f:
+            f.write(str(pid))
+    except Exception as e:
+        alert(e)
+        exit(0)
+
+    recognizer, microphone = sr.Recognizer(), sr.Microphone()
+    model = whisper.load_model(WHISPER_MODEL, in_memory=True)
+
+    alert("Voice Assistant is running in the background...")
+    while True:
+        try:
+            text = listen(recognizer, microphone, model)
+        except sr.WaitTimeoutError:
+            continue
+
+        if ACTIVATION_KEYWORD in text.lower():
+            speak("Yes, how can I help you?")
+
+            try:
+                text = listen(recognizer, microphone, model)
+                speak("Processing your request...")
+                threading.Thread(target=process_text, args=(text,)).start()
+            except sr.WaitTimeoutError:
+                speak("Didn't catch that")
+        else:
+            time.sleep(0.1)
+            continue
+
+
+if not os.path.exists("/tmp/voice-assistant.pid"):
+    alert(
+        "Voice Assistant is not running. Starting the Voice Assistant in the background."
     )
-    response = requests.get(complete_url)
-    data = response.json()
+    subprocess.Popen(["python3", sys.argv[0], "--deamon"])
+    exit(0)
 
-    data = {
-        "main": data["main"],
-        "sunrise": datetime.datetime.fromtimestamp(data["sys"]["sunrise"]).strftime(
-            "%H:%M:%S"
-        ),
-        "sunset": datetime.datetime.fromtimestamp(data["sys"]["sunset"]).strftime(
-            "%H:%M:%S"
-        ),
-        "weather": data["weather"],
-        "wind": data["wind"],
-        "visibility": data["visibility"],
-        "name": data["name"],
-        "country": data["sys"]["country"],
-    }
+recognizer, microphone = sr.Recognizer(), sr.Microphone()
+model = whisper.load_model(WHISPER_MODEL, in_memory=True)
 
-    prompt += f"\n\nAnswer user's weather questions by using  today's weather information given below,\n```json\n{json.dumps(data, indent=4, sort_keys=True)}\n```"
-
-print(prompt)
-
-response = ollama.chat(
-    model="qwen:0.5b",
-    messages=[
-        {
-            "role": "system",
-            "content": f"""
-                {prompt}
-
-                This is a smart personal assistant.
-                Keep your answers brief and do not apologize.
-                """,
-        },
-        {
-            "role": "user",
-            "content": text,
-        },
-    ],
-)["message"]["content"]
-
-alert(response)
-speak(response)
+try:
+    speak("Yes, how can I help you?")
+    text = listen(recognizer, microphone, model)
+    speak("Processing your request...")
+    threading.Thread(target=process_text, args=(text,)).start()
+except sr.WaitTimeoutError:
+    speak("Didn't catch that")
