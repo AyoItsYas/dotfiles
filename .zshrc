@@ -157,36 +157,41 @@ if [ -f ./.venv/bin/activate ]; then
     activate() { source ./.venv/bin/activate; } # utility command to easily activate the enviornment
 fi
 
-export NVM_DIR="$HOME/.nvm"
+source /usr/share/nvm/init-nvm.sh
 
-NODE_GLOBALS=($(find $NVM_DIR/versions/node -maxdepth 3 -type l -wholename '*/bin/*' | xargs -n1 basename | sort | uniq))
-NODE_GLOBALS+=("node" "pnpm" "yarn" "npm")
+# export NVM_DIR="/usr/share/nvm"
 
-_load_nvm() {
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+# export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-    node --version >/dev/null
-}
+# NODE_GLOBALS=($(find $NVM_DIR/versions/node -maxdepth 3 -type l -wholename '*/bin/*' | xargs -n1 basename | sort | uniq))
+# NODE_GLOBALS+=("node" "pnpm" "yarn" "npm" "bun" "deno" "npx" "pnpx" "yarnx" "dlx" "bunx")
 
-for cmd in "${NODE_GLOBALS[@]}"; do
-    eval "function ${cmd}(){ unset -f ${NODE_GLOBALS[*]}; _load_nvm; unset -f _load_nvm; ${cmd} \$@; }"
-done
+# _load_nvm() {
+#     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+#     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
-unset cmd NODE_GLOBALS
+#     node --version >/dev/null
+# }
 
-# pnpm
-export PNPM_HOME="/home/yasiru/.local/share/pnpm"
-case ":$PATH:" in
-*":$PNPM_HOME:"*) ;;
-*) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
+# for cmd in "${NODE_GLOBALS[@]}"; do
+#     eval "function ${cmd}(){ unset -f ${NODE_GLOBALS[*]}; _load_nvm; unset -f _load_nvm; ${cmd} \$@; }"
+# done
+
+# unset cmd NODE_GLOBALS
+
+# # pnpm
+# export PNPM_HOME="/home/yasiru/.local/share/pnpm"
+# case ":$PATH:" in
+# *":$PNPM_HOME:"*) ;;
+# *) export PATH="$PNPM_HOME:$PATH" ;;
+# esac
+# # pnpm end
 
 # enable command-not-found if installed
-if [ -f /etc/zsh_command_not_found ]; then
-    . /etc/zsh_command_not_found
-fi
+# if [ -f /etc/zsh_command_not_found ]; then
+#     . /etc/zsh_command_not_found
+# fi
 
 # go
 
@@ -195,8 +200,12 @@ export PATH=$PATH:/home/yasiru/go/bin
 
 # zsh plugins
 
-source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # !!! must be the last plugin sourced
+# source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # !!! must be the last plugin sourced
+
+source /usr/share/doc/find-the-command/ftc.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 copilot_suggestion() {
     BUFFER=$(gh-copilot-zsh-plugin suggest "$BUFFER" $CURSOR)
