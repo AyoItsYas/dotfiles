@@ -1,7 +1,7 @@
 [user]
 	name = Yasiru Dharmathilaka
 	email = yasiru.dharmathilaka@gmail.com
-	signingkey = 988D0BDF72A81865
+	signingkey = 7A3DDE547C9E440C4D33BD21290A86AEF5E197F0
 [core]
 	excludesFile = .gitignore
 [commit]
