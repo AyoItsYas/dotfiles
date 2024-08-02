@@ -1,0 +1,16 @@
+;; kanata config file
+
+(defsrc caps)
+(
+  defalias
+    escctrl (tap-hold 100 100 esc lctrl)
+)
+(deflayer base @escctrl)
+
+;; (defsrc f i j k l)
+;; (
+;;   defalias
+;;     f (tap-hold 250 250 f (layer-while-held arrows))
+;; )
+;; (deflayer secondary-arrows @f i j k l)
+;; (deflayer arrows _ up left down right)
