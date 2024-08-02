@@ -6,14 +6,9 @@ CAMERA=$(echo "$DEVICES" | grep Camera)
 CAMERA_ID=$(echo "$CAMERA" | awk '{print $1}' | tr -d ':')
 CAMERA_ENABLED=$(echo "$DEVICES" | grep Camera | grep allow | wc -l)
 
-echo 0
-
 if [ "$CAMERA_ENABLED" -eq 1 ]; then
-    echo 1
     pkexec sudo howdy disable 1
-    echo 2
     usbguard block-device "$CAMERA_ID"
-    echo 3
     STATUS="disabled"
 else
     usbguard allow-device "$CAMERA_ID"

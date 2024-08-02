@@ -20,20 +20,13 @@ while read -r line; do
     fi
 done <<<"$SINKS"
 
-echo "Sinks: ${SINK_LIST[*]}"
-echo "States: ${SINK_STATES[*]}"
-
 if [[ $((RUNNING_SINK_INDEX)) -eq ${#SINK_LIST[@]} ]]; then
     NEXT_SINK=${SINK_LIST[0]}
 else
     NEXT_SINK=${SINK_LIST[$((RUNNING_SINK_INDEX))]}
 fi
 
-echo "Index: $RUNNING_SINK_INDEX"
-
-echo "Switching to sink: $NEXT_SINK"
-
 pactl set-default-sink "$NEXT_SINK"
 
 NEXT_SINK_DESCRIPTION=$(pactl list sinks | grep -A 5 "Name: $NEXT_SINK" | grep Description | cut -d ':' -f 2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-notify-send "Toggle Audio Output" "Output sink switched to '$NEXT_SINK_DESCRIPTION'" --icon=audio-volume-high
+notify-send "Toggle Audio Output" "Output sink switched to '$NEXT_SINK_DESCRIPTION'" --icon=audio-volume-high -a "Audio Toggle Hotkey"
