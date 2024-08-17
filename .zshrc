@@ -8,46 +8,6 @@ case $- in
 *) return ;;
 esac
 
-# set a fancy prompt (non-color, unless we know we "want" color)
-
-case "$TERM" in
-xterm-color | *-256color) color_prompt=yes ;;
-esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-# force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-        # We have color support; assume it's compliant with Ecma-48
-        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-        # a case would tend to support setf rather than setaf.)
-
-        color_prompt=yes
-    else
-        color_prompt=
-    fi
-fi
-
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-
-unset color_prompt force_color_prompt
-
-# if this is an xterm set the title to user@host:dir
-
-case "$TERM" in
-xterm* | rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*) ;;
-esac
-
 # enable color support of ls and also add handy aliases
 
 if [ -x /usr/bin/dircolors ]; then
@@ -73,9 +33,12 @@ setopt notify              # report the status of background jobs immediately
 setopt numericglobsort     # sort filenames numerically when it makes sense
 setopt promptsubst         # enable command substitution in prompt
 
-# variables
+# path
 
-export PATH="/home/$USER/bin:/home/$USER/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin/toggle-scripts:$PATH"
+export PATH="$HOME/.local/bin/batch-file-operations:$PATH"
+
 export PYTHONSTARTUP="$HOME/.pythonrc" # python startup file
 
 TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S\ncpu\t%P' # configure `time` format
@@ -87,19 +50,11 @@ WORDCHARS=${WORDCHARS//\//}                       # Don't consider certain chara
 alias l='ls -CF'
 alias la='ls -A'
 alias ll='ls -alF'
-alias history="history 0"
-alias apt="apt-fast"
-alias apt-get="apt-fast"
-alias cpilot="gh copilot"
-
-if [ -f ~/.zsh_aliases ]; then
-    . ~/.zsh_aliases
-fi
 
 # history configuration
 
 HISTFILE=~/.zsh_history
-HISTSIZE=5000
+HISTSIZE=1000000
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
 
@@ -118,7 +73,8 @@ setopt sharehistory           # share command history data
 # auto suggestions
 
 autoload -Uz compinit
-compinit -d ~/.cache/zcompdump
+compinit -d "$HOME/.cache/zcompdump"
+
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete
@@ -149,75 +105,63 @@ bindkey '^[[6~' end-of-buffer-or-history       # page down
 bindkey '^[[H' beginning-of-line               # home
 bindkey '^[[F' end-of-line                     # end
 bindkey '^[[Z' undo                            # shift + tab undo last action
+bindkey '^h' backward-kill-word                # ctrl + backspace to delete word
 
 # utility
 
+# command to easily activate the python virtual environment
+activate() {
+    if [ -f ./.venv/bin/activate ]; then
+        source ./.venv/bin/activate
+    fi
+}
+
 if [ -f ./.venv/bin/activate ]; then
-    source ./.venv/bin/activate                 # if a python virtual envirnment is found activate it automatically
-    activate() { source ./.venv/bin/activate; } # utility command to easily activate the enviornment
+    source ./.venv/bin/activate # if a python virtual envirnment is found activate it automatically
 fi
 
-source /usr/share/nvm/init-nvm.sh
+# nvm (node version manager)
 
-# export NVM_DIR="/usr/share/nvm"
+export NVM_DIR="/usr/share/nvm"
 
-# export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-# NODE_GLOBALS=($(find $NVM_DIR/versions/node -maxdepth 3 -type l -wholename '*/bin/*' | xargs -n1 basename | sort | uniq))
-# NODE_GLOBALS+=("node" "pnpm" "yarn" "npm" "bun" "deno" "npx" "pnpx" "yarnx" "dlx" "bunx")
+NODE_GLOBALS=($(find $NVM_DIR/versions/node -maxdepth 3 -type l -wholename '*/bin/*' | xargs -n1 basename | sort | uniq))
+NODE_GLOBALS+=("node" "pnpm" "yarn" "npm" "bun" "deno" "npx" "pnpx" "yarnx" "dlx" "bunx")
 
-# _load_nvm() {
-#     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-#     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+_load_nvm() {
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-#     node --version >/dev/null
-# }
+    echo "NVM Node version: $(node --version)"
+}
 
-# for cmd in "${NODE_GLOBALS[@]}"; do
-#     eval "function ${cmd}(){ unset -f ${NODE_GLOBALS[*]}; _load_nvm; unset -f _load_nvm; ${cmd} \$@; }"
-# done
+for cmd in "${NODE_GLOBALS[@]}"; do
+    eval "function ${cmd}(){ unset -f ${NODE_GLOBALS[*]}; _load_nvm; unset -f _load_nvm; ${cmd} \$@; }"
+done
 
-# unset cmd NODE_GLOBALS
+# pnpm
 
-# # pnpm
-# export PNPM_HOME="/home/yasiru/.local/share/pnpm"
-# case ":$PATH:" in
-# *":$PNPM_HOME:"*) ;;
-# *) export PATH="$PNPM_HOME:$PATH" ;;
-# esac
-# # pnpm end
-
-# enable command-not-found if installed
-# if [ -f /etc/zsh_command_not_found ]; then
-#     . /etc/zsh_command_not_found
-# fi
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+*":$PNPM_HOME:"*) ;;
+*) export PATH="$PNPM_HOME:$PATH" ;;
+esac
 
 # go
 
-export PATH=$PATH:/usr/local/go/bin
-export PATH=$PATH:/home/yasiru/go/bin
+export PATH="$PATH:/usr/local/go/bin"
+export PATH="$PATH:$HOME/go/bin"
 
 # zsh plugins
-
-# source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-# source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # !!! must be the last plugin sourced
 
 source /usr/share/doc/find-the-command/ftc.zsh
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-copilot_suggestion() {
-    BUFFER=$(gh-copilot-zsh-plugin suggest "$BUFFER" $CURSOR)
-    CURSOR=${#BUFFER}
-}
-
-zle -N copilot_suggestion
-bindkey '^A' copilot_suggestion
-
-# eval "$(fzf --zsh)"
-eval "$(zoxide init zsh)"                                         # setting up zoxide
-eval "$(oh-my-posh init zsh --config $HOME/.posh-theme.omp.json)" # enable completion features
+eval "$(fzf --zsh)"
+eval "$(zoxide init zsh)"                                           # setting up zoxide
+eval "$(oh-my-posh init zsh --config "$HOME/.posh-theme.omp.json")" # enable completion features
 
 # zinit
 
