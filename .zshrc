@@ -35,6 +35,8 @@ setopt promptsubst         # enable command substitution in prompt
 
 # path
 
+eval "$(direnv hook zsh)"
+
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin/toggle-scripts:$PATH"
 export PATH="$HOME/.local/bin/batch-file-operations:$PATH"
