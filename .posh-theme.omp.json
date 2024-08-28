@@ -88,7 +88,7 @@
             "rebase_icon": "\u2c62 ",
             "tag_icon": "\u25b6 "
           },
-          "template": " <#757575,>|</> {{ abbrev 20 .RepoName }}"
+          "template": " <#757575,>|</> {{ abbrev 20 .RepoName }} <#757575,>|</> {{ .HEAD }} "
         }
       ]
     },
