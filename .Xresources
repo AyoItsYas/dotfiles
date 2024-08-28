@@ -1,0 +1,6 @@
+XTerm*background:   black
+XTerm*foreground:   white
+
+XTerm*renderFont: true
+XTerm*faceName: FiraCode Nerd Font
+XTerm*faceSize: 9
