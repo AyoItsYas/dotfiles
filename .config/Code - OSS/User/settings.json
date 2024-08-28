@@ -1,0 +1,353 @@
+{
+    // Window settings
+    "window.restoreFullscreen": true,
+    "window.menuBarVisibility": "toggle",
+    // Security settings
+    "security.workspace.trust.untrustedFiles": "open",
+    // Workbench settings
+    "files.exclude": {
+        "**/__pycache__/": true,
+        "**/.next/": true,
+        "**/*venv/": true,
+        "**/node_modules/": true
+    },
+    "files.trimTrailingWhitespace": true,
+    // Editor settings
+    "editor.mouseWheelZoom": true,
+    "editor.accessibilitySupport": "off",
+    "editor.tabSize": 4,
+    "editor.lineHeight": 18,
+    "editor.unicodeHighlight.ambiguousCharacters": true,
+    "editor.unicodeHighlight.invisibleCharacters": true,
+    // Search settings,
+    "search.useGlobalIgnoreFiles": true,
+    "search.useParentIgnoreFiles": true,
+    // Explorer settings
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    // Terminal settings
+    "terminal.integrated.cursorBlinking": true,
+    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.cursorWidth": 2,
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.shellIntegration.decorationsEnabled": "never",
+    // Language specific settings
+    "[.cs]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+    },
+    "[html]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[php]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "DEVSENSE.phptools-vscode",
+    },
+    "[django-html]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "monosans.djlint"
+    },
+    "[hubl-html]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false
+    },
+    "[nginx]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "raynigon.nginx-formatter"
+    },
+    "[sass]": {
+        "editor.tabSize": 2,
+    },
+    "[scss]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yml]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.insertSpaces": true,
+        "editor.autoIndent": "advanced",
+        "gitlens.codeLens.scopes": [
+            "document"
+        ]
+    },
+    "[yaml]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.insertSpaces": true,
+        "editor.autoIndent": "advanced",
+        "gitlens.codeLens.scopes": [
+            "document"
+        ]
+    },
+    "[javascript]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[.jsx]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[.tsx]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[.scss]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.formatOnType": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    // Git settings
+    "git.confirmSync": false,
+    "git.autofetch": true,
+    "git.postCommitCommand": "sync",
+    // Python settings
+    "flake8.args": [
+        "--ignore=E24,E701,E731,W504,E203",
+        "--max-line-length=220"
+    ],
+    "python.terminal.activateEnvironment": false,
+    // JavaScript settings
+    "javascript.updateImportsOnFileMove.enabled": "never",
+    // YAML settings
+    "yaml.schemas": {
+        "https://bitbucket.org/atlassianlabs/atlascode/raw/ad68df731f5c0e6baf2cdc37b5a8d86eb3449e3d/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+        "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "docker-compose.yml",
+    },
+    // Prettier settings
+    "prettier.jsxSingleQuote": true,
+    "prettier.tabWidth": 2,
+    "prettier.trailingComma": "all",
+    // LiveServer extension settings
+    "liveServer.settings.donotVerifyTags": true,
+    "liveSassCompile.settings.showOutputWindowOn": "Error",
+    "redhat.telemetry.enabled": false,
+    // Atlassian extension settings
+    "atlascode.jira.enabled": true,
+    "atlascode.jira.statusbar.showUser": true,
+    "atlascode.jira.statusbar.showLogin": true,
+    "atlascode.jira.jqlList": [
+        {
+            "id": "483d5d85-8567-4108-9e88-51b1c3363b8d",
+            "enabled": true,
+            "name": "My blipdigital Issues",
+            "query": "assignee = currentUser() AND resolution = Unresolved ORDER BY lastViewed DESC",
+            "siteId": "182167d8-e5af-4dd2-9537-2e61781a945b",
+            "monitor": true
+        }
+    ],
+    // Folder Templates extension settings
+    "folderTemplates.structures": [
+        {
+            "name": "React Component (TS + SCSS)",
+            "omitParentDirectory": true,
+            "structure": [
+                {
+                    "fileName": "<FTName>.tsx",
+                    "template": "reactComponent"
+                },
+                {
+                    "fileName": "<FTName>.module.scss",
+                    "template": "SCSSModule"
+                }
+            ]
+        }
+    ],
+    "folderTemplates.fileTemplates": {
+        "reactComponent": [
+            "import styles from './<FTName>.module.scss';",
+            "",
+            "interface <FTName>Props {key?: number; children?: Array<JSX.Element>;};",
+            "",
+            "export default function <FTName>(props: <FTName>Props) {",
+            "const {key, children} = props;",
+            "return <div {...(key ? { key: key } : {})} className={styles.main}>{children}</div>",
+            "}",
+        ],
+        "SCSSModule": ".main {}"
+    },
+    // Bin/Misc
+    "settingsSync.ignoredExtensions": [
+        "cschlosser.doxdocgen"
+    ],
+    "search.exclude": {
+        "**/.venv": true
+    },
+    "liveServer.settings.donotShowInfoMsg": true,
+    "grunt.autoDetect": "on",
+    "terminal.integrated.fontSize": 12,
+    "terminal.integrated.localEchoStyle": "dim",
+    "editor.fontSize": 12,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "explorer.openEditors.visible": 1000,
+    "git.openRepositoryInParentFolders": "always",
+    "terminal.integrated.enablePersistentSessions": false,
+    "terminal.integrated.persistentSessionReviveProcess": "never",
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "workbench.editor.showTabs": "single",
+    "editor.formatOnSave": true,
+    "debug.onTaskErrors": "debugAnyway",
+    "editor.stickyScroll.enabled": true,
+    "editor.inlineSuggest.enabled": true,
+    "terminal.integrated.lineHeight": 1.25,
+    "git.enableSmartCommit": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": true,
+        "markdown": true,
+        "scminput": false
+    },
+    "terminal.integrated.enableMultiLinePasteWarning": false,
+    "editor.largeFileOptimizations": false,
+    "discord.detailsEditing": "Editing {file_name} {total_lines} lines",
+    "discord.lowerDetailsEditing": "{workspace} on {git_branch}",
+    "discord.lowerDetailsIdling": "Slacking Off",
+    "discord.detailsIdling": "Slacking Off",
+    "terminal.integrated.focusAfterRun": "terminal",
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "files.associations": {
+        "*.tw.css": "tailwindcss",
+        "*.tw.scss": "tailwindcss",
+        "*.tw.sass": "tailwindcss",
+        "*.tw.module.css": "tailwindcss",
+        "*.tw.module.scss": "tailwindcss",
+        "*.tw.module.sass": "tailwindcss",
+        "*.html": "html",
+        "*.jsx": "javascriptreact",
+        "*.tsx": "typescriptreact"
+    },
+    "git.ignoreRebaseWarning": true,
+    "terminal.integrated.copyOnSelection": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "github.copilot.advanced": {},
+    "workbench.tree.enableStickyScroll": true,
+    "notebook.stickyScroll.enabled": true,
+    // "terminal.integrated.stickyScroll.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.jsx": "${capture}.module.scss, ${capture}.module.sass, ${capture}.module.css, ${capture}.scss, ${capture}.sass, ${capture}.css ${capture}.tw.module.css ${capture}.tw.module.scss ${capture}.tw.module.sass",
+        "*.tsx": "${capture}.module.scss, ${capture}.module.sass, ${capture}.module.css, ${capture}.scss, ${capture}.sass, ${capture}.css ${capture}.tw.module.css ${capture}.tw.module.scss ${capture}.tw.module.sass",
+        "*.Dockerfile": "*.Dockerfile"
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.sortOrder": "type",
+    "editor.fontFamily": "\"FiraCode Nerd Font\"",
+    "diffEditor.hideUnchangedRegions.enabled": true,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.wordWrap": "on",
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    },
+    "accessibility.signals.terminalBell": {
+        "sound": "on"
+    },
+    "terminal.integrated.enableVisualBell": true,
+    "explorer.confirmPasteNative": false,
+    "autoHide.autoHideAuxiliaryBar": false,
+    "[shellscript]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[ignore]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[properties]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "gitlens.graph.minimap.dataType": "lines",
+    "[dotenv]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "gitlens.launchpad.indicator.enabled": false,
+    "github.copilot.editor.enableAutoCompletions": true,
+    "idf.espIdfPath": "/home/yasiru/esp/v5.2.2/esp-idf",
+    "idf.pythonBinPath": "/home/yasiru/.espressif/python_env/idf5.2_py3.10_env/bin/python",
+    "idf.toolsPath": "/home/yasiru/.espressif",
+    "idf.customExtraPaths": "/home/yasiru/.espressif/tools/xtensa-esp-elf-gdb/14.2_20240403/xtensa-esp-elf-gdb/bin:/home/yasiru/.espressif/tools/riscv32-esp-elf-gdb/14.2_20240403/riscv32-esp-elf-gdb/bin:/home/yasiru/.espressif/tools/xtensa-esp-elf/esp-13.2.0_20230928/xtensa-esp-elf/bin:/home/yasiru/.espressif/tools/riscv32-esp-elf/esp-13.2.0_20230928/riscv32-esp-elf/bin:/home/yasiru/.espressif/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/home/yasiru/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/bin:/home/yasiru/.espressif/tools/esp-rom-elfs/20230320",
+    "idf.customExtraVars": {
+        "OPENOCD_SCRIPTS": "/home/yasiru/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+        "ESP_ROM_ELF_DIR": "/home/yasiru/.espressif/tools/esp-rom-elfs/20230320/"
+    },
+    "idf.gitPath": "/usr/bin/git",
+    "cmake.showOptionsMovedNotification": false,
+    "cmake.configureOnOpen": true,
+    "cmake.pinnedCommands": [
+        "workbench.action.tasks.configureTaskRunner",
+        "workbench.action.tasks.runTask"
+    ],
+    "idf.listDfuDevices": [],
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    },
+    "gitlens.views.commitDetails.files.layout": "list",
+    "supermaven.otherWarning": false,
+    "cSpell.userWords": [
+        "lucide",
+        "shadcn",
+        "tailwindcss"
+    ],
+    "workbench.sideBar.location": "right",
+    "editor.minimap.showSlider": "always",
+    "gitlens.views.stashes.files.layout": "list",
+    "editor.autoClosingComments": "always",
+    "editor.autoClosingBrackets": "always",
+    "editor.autoClosingQuotes": "always",
+    "editor.linkedEditing": true,
+}
