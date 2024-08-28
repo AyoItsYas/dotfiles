@@ -1,0 +1,5 @@
+--enable-zero-copy
+--enable-features=WebRTCPipeWireCapturer,UseOzonePlatform,VaapiVideoDecodeLinuxGL,WaylandWindowDecorations
+--ignore-gpu-blocklist
+--enable-gpu-rasterization
+--ozone-platform=wayland
