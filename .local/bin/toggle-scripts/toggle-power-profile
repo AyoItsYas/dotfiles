@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+CURRENT_PROFILE=$(tlp-stat -m)
+
+if echo "$CURRENT_PROFILE" | grep -q "battery"; then
+    NEXT_PROFILE="ac"
+    gsettings set org.gnome.desktop.interface enable-animations true
+else
+    NEXT_PROFILE="bat"
+    gsettings set org.gnome.desktop.interface enable-animations false
+fi
+
+sudo tlp "$NEXT_PROFILE"
+
+notify-send "Toggle Power Mode" "Power mode toggled to $(tlp-stat -m) mode." -a "Power Mode Toggle Hotkey" --icon=dialog-information
