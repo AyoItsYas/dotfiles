@@ -1,0 +1,11 @@
+[Unit]
+Description=Monitor and restart EasyEffects if it crashes
+After=sound.target
+
+[Service]
+ExecStart=easyeffects --gapplication-service
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=default.target
