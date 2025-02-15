@@ -117,18 +117,115 @@
             "mode": "float"
         },
         {
-            "wmClass": "gedit",
-            "wmId": 3036570906,
+            "wmClass": "zen-alpha",
             "mode": "float"
         },
         {
-            "wmClass": "Spotify",
-            "wmId": 3036570916,
+            "wmClass": "superProductivity",
             "mode": "float"
         },
         {
             "wmClass": "org.gnome.Nautilus",
-            "wmId": 3036570967,
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Extensions",
+            "mode": "float"
+        },
+        {
+            "wmClass": "discord",
+            "mode": "float"
+        },
+        {
+            "wmClass": "whatsapp-electron",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.keepassxc.KeePassXC",
+            "mode": "float"
+        },
+        {
+            "wmClass": "com.github.wwmm.easyeffects",
+            "mode": "float"
+        },
+        {
+            "wmClass": "thorium-cpdpbfelifklonephgpieimdpcecgoen-Profile_2",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Games",
+            "mode": "float"
+        },
+        {
+            "wmClass": "fdm",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.pulseaudio.pavucontrol",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Settings",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.TextEditor",
+            "mode": "float"
+        },
+        {
+            "wmClass": "gnome-disks",
+            "mode": "float"
+        },
+        {
+            "wmClass": "MongoDB Compass",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Software",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.baobab",
+            "mode": "float"
+        },
+        {
+            "wmClass": "scrcpy",
+            "mode": "float"
+        },
+        {
+            "wmClass": "com.github.th_ch.youtube_music",
+            "mode": "float"
+        },
+        {
+            "wmClass": "onedriver-launcher",
+            "mode": "float"
+        },
+        {
+            "wmClass": "io.github.lact-linux",
+            "mode": "float"
+        },
+        {
+            "wmClass": "steam",
+            "mode": "float"
+        },
+        {
+            "wmClass": "GitKraken",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.bleachbit.BleachBit",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Loupe",
+            "mode": "float"
+        },
+        {
+            "wmClass": "nm-connection-editor",
+            "mode": "float"
+        },
+        {
+            "wmClass": "Gufw.py",
             "mode": "float"
         }
     ]
