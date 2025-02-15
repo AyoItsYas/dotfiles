@@ -50,12 +50,17 @@ def __main__(value: str):
     NEW_FILE += ".x265.HEVC."
     NEW_FILE += FILE.split(".")[-1]
 
+    USE_INTEL_QSV = True
+
     command = (
         "ffmpeg",
+        *(("-hwaccel", "qsv") if USE_INTEL_QSV else ()),
         "-i",
         FILE,
         "-c:v",
-        "libx265",
+        *(("hevc_qsv", "-preset", "slow", "-global_quality", "24") if USE_INTEL_QSV else ("libx265",)),
+        "-c:a",
+        "copy",
         "-vtag",
         "hvc1",
         "-map_metadata",
@@ -71,7 +76,8 @@ def __main__(value: str):
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:
-        return
+        print("An error occured while transcoding!")
+        return exit(1)
     else:
         print(FILE)
 

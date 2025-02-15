@@ -31,6 +31,7 @@ def __main__(value: str):
         return
 
     command = ("convert", f"{FILE}", f"{NEW_FILE}")
+
     try:
         subprocess.run(
             command,
@@ -39,7 +40,8 @@ def __main__(value: str):
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:
-        return
+        print("An error occured while transcoding!")
+        return exit(1)
     else:
         print(FILE)
 
