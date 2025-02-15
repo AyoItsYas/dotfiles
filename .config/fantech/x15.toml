@@ -1,0 +1,48 @@
+defaultMode = 5
+fireSpeed = 0
+
+# Available keys:
+# leftclick, middleclick, rightclick, forward, backward, dpiloop, showdesktop,
+# doubleclick, fire, off, dpiplus, dpiminus
+[keymaps]
+lmb = "leftclick"
+scrollButton = "middleclick"
+rmb = "rightclick"
+forward = "forward"
+backward = "backward"
+plus = "dpiplus"
+minus = "dpiminus"
+
+[led]
+time = 0 # only define if type is fixed or cyclic
+type = "static" # Available modes: off, static, fixed, cyclic
+
+[[modes]]
+enabled = true
+dpi = 200
+color = "CDF"
+
+[[modes]]
+enabled = true
+dpi = 600
+color = "445"
+
+[[modes]]
+enabled = true
+dpi = 1000
+color = "CDF"
+
+[[modes]]
+enabled = true
+dpi = 1600
+color = "47F"
+
+[[modes]]
+enabled = true
+dpi = 2400
+color = "6E6"
+
+[[modes]]
+enabled = true
+dpi = 200
+color = "111"
