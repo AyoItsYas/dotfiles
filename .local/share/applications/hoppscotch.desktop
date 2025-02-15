@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Development;
+Comment=Hoppscotch
+Exec=hoppscotch --disable-features=Animations
+Icon=hoppscotch
+Name=Hoppscotch
+Terminal=false
+Type=Application
