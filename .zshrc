@@ -37,6 +37,12 @@ setopt promptsubst         # enable command substitution in prompt
 
 eval "$(direnv hook zsh)"
 
+export ANDROID_HOME="/home/yasiru/Android/Sdk"
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+export GPG_TTY=$(tty)
+
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin/toggle-scripts:$PATH"
 export PATH="$HOME/.local/bin/batch-file-operations:$PATH"
@@ -122,26 +128,6 @@ if [ -f ./.venv/bin/activate ]; then
     source ./.venv/bin/activate # if a python virtual envirnment is found activate it automatically
 fi
 
-# nvm (node version manager)
-
-export NVM_DIR="/usr/share/nvm"
-
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-
-NODE_GLOBALS=($(find $NVM_DIR/versions/node -maxdepth 3 -type l -wholename '*/bin/*' | xargs -n1 basename | sort | uniq))
-NODE_GLOBALS+=("node" "pnpm" "yarn" "npm" "bun" "deno" "npx" "pnpx" "yarnx" "dlx" "bunx")
-
-_load_nvm() {
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-    echo "NVM Node version: $(node --version)"
-}
-
-for cmd in "${NODE_GLOBALS[@]}"; do
-    eval "function ${cmd}(){ unset -f ${NODE_GLOBALS[*]}; _load_nvm; unset -f _load_nvm; ${cmd} \$@; }"
-done
-
 # pnpm
 
 export PNPM_HOME="$HOME/.local/share/pnpm"
@@ -183,3 +169,7 @@ zinit snippet OMZP::archlinux
 zinit snippet OMZP::command-not-found
 
 zinit cdreplay -q
+
+# docker
+
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
