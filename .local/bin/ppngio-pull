@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+if [ -z "$2" ]; then
+    set -- "$1" "steamuser" "${@:3}"
+fi
+
+curl --output "$1" "ppng.io/$2" "${@:3}"
