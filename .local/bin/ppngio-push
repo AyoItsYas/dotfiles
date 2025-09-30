@@ -1,7 +1,32 @@
 #!/usr/bin/bash
+# path : ~/.local/bin/ppngio-push
 
-if [ -z "$2" ]; then
-    set -- "$1" "steamuser" "${@:3}"
+if [[ "$1" == "~"* ]]; then
+  set -- "${1/#\~/$HOME}" "${@:1}"
 fi
 
-curl -T "$1" "ppng.io/$2" "${@: 3}"
+if [ -z "$2" ]; then
+  set -- "$1" "steamuser" "${@:1}"
+fi
+
+FILE_PATH="$1"
+PPNGIO_IDENTFIER="$2"
+DEBUG="${3:-}"
+
+if [ "$DEBUG" ]; then
+  echo "$@"
+  echo "$FILE_PATH $PPNGIO_IDENTFIER $DEBUG"
+  exit
+fi
+
+TEMP="/tmp/ppngio.tmp"
+LOCK="/tmp/ppngio.lock"
+
+echo "$FILE_PATH" >"$LOCK"
+
+curl -T "$LOCK" "ppng.io/$PPNGIO_IDENTFIER.lock" &>/dev/null &
+curl -T "$FILE_PATH" "ppng.io/$PPNGIO_IDENTFIER.tmp" &>/dev/null &
+
+wait
+
+rm "/tmp/ppngio.lock"

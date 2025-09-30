@@ -1,7 +1,53 @@
 #!/usr/bin/bash
+# path : ~/.local/bin/ppngio-pull
 
-if [ -z "$2" ]; then
-    set -- "$1" "steamuser" "${@:3}"
+if [[ "$1" == "~"* ]]; then
+  set -- "${1/#\~/$HOME}" "${@:1}"
 fi
 
-curl --output "$1" "ppng.io/$2" "${@:3}"
+if [ -z "$2" ]; then
+  set -- "$1" "steamuser" "${@:1}"
+fi
+
+CUSTOM_PULL_PATH="$1"
+PPNGIO_IDENTFIER="$2"
+DEBUG="$3"
+
+if [ "$DEBUG" ]; then
+  echo "$@"
+  echo "$CUSTOM_PULL_PATH $PPNGIO_IDENTFIER $DEBUG"
+  exit
+fi
+
+TEMP="/tmp/ppngio.tmp"
+LOCK="/tmp/ppngio.lock"
+
+curl --output "$LOCK" "ppng.io/$PPNGIO_IDENTFIER.lock" &>/dev/null &
+curl --output "$TEMP" "ppng.io/$PPNGIO_IDENTFIER.tmp" &>/dev/null &
+
+wait
+
+if [ -z "$CUSTOM_PULL_PATH" ]; then
+  PULL_PATH="$(cat "$LOCK")"
+else
+  PULL_PATH="$CUSTOM_PULL_PATH"
+fi
+
+PULL_PATH_DIR="$(dirname "$PULL_PATH")"
+
+bat $TEMP --file-name "$PULL_PATH"
+
+read -p "Accept file [Y/n]? " continue
+[ -z "$continue" ] && continue="Y"
+
+if [ "$continue" != "Y" ] && [ "$continue" != "y" ]; then
+  exit 0
+fi
+
+mkdir -p "$(dirname "$PULL_PATH")"
+
+if ! mv "$TEMP" "$PULL_PATH"; then
+  sudo mv "$TEMP" "$PULL_PATH"
+fi
+
+rm "$LOCK"
