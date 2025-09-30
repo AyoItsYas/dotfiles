@@ -7,13 +7,13 @@ CAMERA_ID=$(echo "$CAMERA" | awk '{print $1}' | tr -d ':')
 CAMERA_ENABLED=$(echo "$DEVICES" | grep Camera | grep allow | wc -l)
 
 if [ "$CAMERA_ENABLED" -eq 1 ]; then
-    pkexec sudo howdy disable 1
-    usbguard block-device "$CAMERA_ID"
-    STATUS="disabled"
+  sudo howdy disable 1
+  usbguard block-device "$CAMERA_ID"
+  STATUS="disabled"
 else
-    usbguard allow-device "$CAMERA_ID"
-    pkexec sudo howdy disable 0
-    STATUS="enabled"
+  usbguard allow-device "$CAMERA_ID"
+  sudo howdy disable 0
+  STATUS="enabled"
 fi
 
 notify-send "Camera & Face Recognition Toggle" "Camera & Face Recognition is $STATUS." -a "Camera Toggle Hotkey" -t 5 --icon=video-display

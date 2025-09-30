@@ -3,11 +3,13 @@
 CURRENT_PROFILE=$(tlp-stat -m)
 
 if echo "$CURRENT_PROFILE" | grep -q "battery"; then
-    NEXT_PROFILE="ac"
-    gsettings set org.gnome.desktop.interface enable-animations true
+  NEXT_PROFILE="ac"
+
+  gsettings set org.gnome.desktop.interface enable-animations true
 else
-    NEXT_PROFILE="bat"
-    gsettings set org.gnome.desktop.interface enable-animations false
+  NEXT_PROFILE="bat"
+
+  gsettings set org.gnome.desktop.interface enable-animations false
 fi
 
 sudo tlp "$NEXT_PROFILE"

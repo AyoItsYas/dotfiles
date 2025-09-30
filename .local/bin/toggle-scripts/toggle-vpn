@@ -5,11 +5,11 @@ VPN_UUID="a285fd8f-1279-47ab-8a62-e85f74fc39b0"
 VPN_ACTIVE=$(nmcli connection show --active | grep -i "vpn" | wc -l)
 
 if [ "$VPN_ACTIVE" -eq 1 ]; then
-    nmcli connection down uuid "$VPN_UUID"
-    STATUS="disconnected"
+  nmcli connection down uuid "$VPN_UUID"
+  STATUS="disconnected"
 else
-    nmcli connection up uuid "$VPN_UUID"
-    STATUS="connected"
+  nmcli connection up uuid "$VPN_UUID"
+  STATUS="connected"
 fi
 
 PUBLIC_IP=$(curl -s ifconfig.me)

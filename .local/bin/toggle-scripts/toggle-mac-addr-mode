@@ -1,23 +1,23 @@
 #!/usr/bin/bash
 
-#ACTIVE_INTERFACE=$(ip route get 1.1.1.1 | awk '{print $5}')
 ACTIVE_INTERFACE="wlan0"
+ACTIVE_INTERFACE=$(ip route get 1.1.1.1 | awk '{print $5}')
 
 CURR_MAC=$(macchanger -s "$ACTIVE_INTERFACE" | grep Curr | awk '{print $3}')
 PERM_MAC=$(macchanger -s "$ACTIVE_INTERFACE" | grep Perm | awk '{print $3}')
 
 if [ "$CURR_MAC" == "$PERM_MAC" ]; then
-    echo "Current MAC is not random. Changing MAC..."
-    sudo ifconfig $ACTIVE_INTERFACE down && sleep 1 && \
-        sudo macchanger -r $ACTIVE_INTERFACE && sleep 1 && sudo ifconfig $ACTIVE_INTERFACE up
-    
-    MODE="random"
-else
-    echo "Current MAC is random. Changing MAC to default..."
-    sudo ifconfig $ACTIVE_INTERFACE down && sleep 1 && \
-        sudo macchanger -p $ACTIVE_INTERFACE && sleep 1 && sudo ifconfig $ACTIVE_INTERFACE up
+  echo "Current MAC is not random. Changing MAC..."
+  sudo ifconfig $ACTIVE_INTERFACE down && sleep 1 &&
+    sudo macchanger -r $ACTIVE_INTERFACE && sleep 1 && sudo ifconfig $ACTIVE_INTERFACE up
 
-    MODE="default"
+  MODE="random"
+else
+  echo "Current MAC is random. Changing MAC to default..."
+  sudo ifconfig $ACTIVE_INTERFACE down && sleep 1 &&
+    sudo macchanger -p $ACTIVE_INTERFACE && sleep 1 && sudo ifconfig $ACTIVE_INTERFACE up
+
+  MODE="default"
 fi
 
 CURR_MAC=$(macchanger -s "$ACTIVE_INTERFACE" | grep Curr | awk '{print $3}')

@@ -50,26 +50,53 @@ def __main__(value: str):
     NEW_FILE += ".x265.HEVC."
     NEW_FILE += FILE.split(".")[-1]
 
-    USE_INTEL_QSV = True
+    # USE_INTEL_QSV = True
+
+    # command = (
+    #     "ffmpeg",
+    #     *(("-hwaccel", "qsv") if USE_INTEL_QSV else ()),
+    #     "-i",
+    #     FILE,
+    #     "-c:v",
+    #     *(("hevc_qsv", "-preset", "slow", "-global_quality", "24") if USE_INTEL_QSV else ("libx265",)),
+    #     "-c:a",
+    #     "copy",
+    #     "-vtag",
+    #     "hvc1",
+    #     "-map_metadata",
+    #     "0",
+    #     NEW_FILE,
+    #     "-y",
+    # )
 
     command = (
         "ffmpeg",
-        *(("-hwaccel", "qsv") if USE_INTEL_QSV else ()),
         "-i",
         FILE,
+        "-vaapi_device",
+        "/dev/dri/renderD128",
+        "-vf",
+        "format=nv12,hwupload",
         "-c:v",
-        *(("hevc_qsv", "-preset", "slow", "-global_quality", "24") if USE_INTEL_QSV else ("libx265",)),
+        "hevc_vaapi",
         "-c:a",
         "copy",
         "-vtag",
         "hvc1",
+        "-f",
+        "mp4",
+        "-rc_mode",
+        "1",
+        "-qp",
+        "25",
         "-map_metadata",
         "0",
         NEW_FILE,
         "-y",
     )
+
     try:
-        subprocess.run(
+        _ = subprocess.run(
             command,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
@@ -95,5 +122,5 @@ while piped:
     except EOFError:
         break
 
-with Pool(4) as p:
+with Pool(2) as p:
     p.map(__main__, files)
