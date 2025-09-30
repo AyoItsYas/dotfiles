@@ -1,0 +1,40 @@
+#!/usr/bin/bash
+
+set_ht_state() {
+  local STATE=$1
+  local MESSAGE_SUFFIX=$2
+
+  echo "$STATE" | sudo tee /sys/devices/system/cpu/cpu{1,3}/online >/dev/null
+
+  if [ "$STATE" == "1" ]; then
+    echo "Hyper Threading ON $MESSAGE_SUFFIX"
+    sudo -u yasiru DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+      notify-send "Toggle Hyper Threading" "Hyper Threading turned on $MESSAGE_SUFFIX"
+  else
+    echo "Hyper Threading OFF $MESSAGE_SUFFIX"
+    sudo -u yasiru DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+      notify-send "Toggle Hyper Threading" "Hyper Threading turned off $MESSAGE_SUFFIX"
+  fi
+}
+
+NONE_SMT_CORE_STATE=$(cat /sys/devices/system/cpu/cpu3/online)
+OVERRIDE=$1
+
+echo "Current SMT core state: $NONE_SMT_CORE_STATE"
+echo "Override parameter: $OVERRIDE"
+
+case "$OVERRIDE" in
+on)
+  set_ht_state 1 "(forced)"
+  ;;
+off)
+  set_ht_state 0 "(forced)"
+  ;;
+*)
+  if [ "$NONE_SMT_CORE_STATE" == "0" ]; then
+    set_ht_state 1
+  else
+    set_ht_state 0
+  fi
+  ;;
+esac

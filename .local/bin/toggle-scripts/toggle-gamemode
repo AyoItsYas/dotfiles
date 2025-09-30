@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+ON=$1
+
+case "$ON" in
+on)
+#  /home/yasiru/.local/bin/toggle-scripts/toggle-hyper-threading off
+  cpupower frequency-set --max 1.2G
+  nbfc set -s 100
+  ;;
+off)
+#  /home/yasiru/.local/bin/toggle-scripts/toggle-hyper-threading on
+  cpupower frequency-set --max 99G
+  nbfc set  -a
+  ;;
+*)
+  ;;
+esac
+

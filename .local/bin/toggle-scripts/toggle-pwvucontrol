@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+PAUVUCONTROL_OPEN=$(pgrep pwvucontrol | wc -l)
+
+if [ "$PAUVUCONTROL_OPEN" -eq 1 ]; then
+  killall pwvucontrol
+else
+  pwvucontrol &
+fi

@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+
+AUTO=false
+SETUP=true
+CLEAN=false
+MODIFY=false
+
+TX_POWER="22"
+INTERFACE=wlan0    # default interface to start the hotspot on
+SPEED_MBIT="20mbit" # default speed in Mbps
+
+function setup() {
+  echo "[*] Loading IFB kernel module..."
+  sudo modprobe ifb numifbs=1
+
+  echo "[*] Creating ifb0 interface..."
+  sudo ip link add ifb0 type ifb  || echo "[!] ifb0 already exists"
+  sudo ip link set ifb0 up
+
+  echo "[*] Setting upload limit on $INTERFACE ($SPEED_MBIT)..."
+  sudo tc qdisc replace dev "$INTERFACE" root handle 1: htb default 20 
+  sudo tc class add dev "$INTERFACE" parent 1: classid 1:20 htb rate "$SPEED_MBIT" 
+
+  echo "[*] Setting download limit on $INTERFACE via ifb0 ($SPEED_MBIT)..."
+  sudo tc qdisc add dev "$INTERFACE" ingress  || echo "[!] Ingress qdisc already exists"
+  sudo tc filter add dev "$INTERFACE" parent ffff: protocol ip u32 match u32 0 0 \
+    action mirred egress redirect dev ifb0  || echo "[!] Filter may already exist"
+  sudo tc qdisc replace dev ifb0 root handle 1: htb default 20 
+  sudo tc class add dev ifb0 parent 1: classid 1:20 htb rate "$SPEED_MBIT" 
+
+  EXEMPT_DEVICES=("$INTERFACE" ifb0)
+  EXEMPT_SUBNETS=("192.168.1.0/24" "10.42.0.0/24")
+  EXEMPT_CLASSID="1:10"
+  EXEMPT_RATE="100mbit"
+  
+  echo "[*] Adding filters to exempt traffic through local subnets '${EXEMPT_SUBNETS[@]}' from limits..."
+
+  for EXEMPT_DEVICE in "${EXEMPT_DEVICES[@]}"; do
+    sudo tc class add dev "$EXEMPT_DEVICE" parent 1: classid "$EXEMPT_CLASSID" htb rate "$EXEMPT_RATE" ceil "$EXEMPT_RATE" || true
+
+    for EXEMPT_SUBNET in "${EXEMPT_SUBNETS[@]}"; do
+      sudo tc filter add dev "$EXEMPT_DEVICE" protocol ip parent 1:0 prio 1 u32 match ip dst "$EXEMPT_SUBNET" flowid "$EXEMPT_CLASSID" || true
+      sudo tc filter add dev "$EXEMPT_DEVICE" protocol ip parent 1:0 prio 1 u32 match ip src "$EXEMPT_SUBNET" flowid "$EXEMPT_CLASSID" || true
+    done
+  done
+  
+  # 22 SSH
+  # 53 DNS Domain Name System, translates domain names to IPs.
+  # 67 DHCP Assigns IP addresses to clients.
+  # 68 DHCP Receives IP addresses from server.
+  # 80 HTTP Standard web traffic.
+  # 123 NTP Network Time Protocol, syncs system clocks.
+  # 443 HTTPS web traffic (encrypted HTTP).
+
+  PORTS=(22 53 67 68 80 123 443)
+  echo "[*] Adding filters to exempt traffic through ports '${PORTS[@]}' from limits..."
+  
+  for EXEMPT_DEVICE in "${EXEMPT_DEVICES[@]}"; do
+    for PORT in "${PORTS[@]}"; do
+      sudo tc filter add dev "$EXEMPT_DEVICE" protocol ip parent 1:0 prio 1 u32 match ip sport "$PORT" 0xffff flowid "$EXEMPT_CLASSID" || true
+      sudo tc filter add dev "$EXEMPT_DEVICE" protocol ip parent 1:0 prio 1 u32 match ip dport "$PORT" 0xffff flowid "$EXEMPT_CLASSID" || true
+    done
+  done
+
+  # ARP (ETH_TYPE 0x0806)
+  sudo tc filter add dev "$INTERFACE" parent 1:0 protocol arp u32 match u16 0x0806 0xffff at 12 action pass
+
+  echo "[*] Limits applied: $SPEED_MBIT up/down on $INTERFACE"
+
+  echo "[*] Turning on wifi hotspot"
+  sudo nmcli radio wifi on > /dev/null 2>&1
+  sudo nmcli connection up Hotspot > /dev/null 2>&1
+
+  sudo iwconfig "$INTERFACE" txpower "$TX_POWER"
+}
+
+function modify() {
+  echo "[*] Updating txpower on $INTERFACE to $TX_POWER..."
+  sudo iwconfig "$INTERFACE" txpower "$TX_POWER"
+
+  echo "[*] Updating speed limit on $INTERFACE to $SPEED_MBIT..."
+  sudo tc class change dev "$INTERFACE" parent 1: classid 1:20 htb rate "$SPEED_MBIT" 
+  sudo tc class change dev ifb0 parent 1: classid 1:20 htb rate "$SPEED_MBIT" 
+}
+
+function clean() {
+  echo "[*] Removing limits..."
+  sudo tc qdisc del dev "$INTERFACE" root 
+  sudo tc qdisc del dev "$INTERFACE" ingress 
+  sudo tc qdisc del dev ifb0 root 
+  sudo ip link delete ifb0 type ifb 
+
+  echo "[*] Switching off wifi hotspot..."
+  sudo nmcli radio wifi off 
+
+  echo "[*] Unloading IFB kernel module..."
+  sudo modprobe -r ifb
+
+  echo "[*] Cleanup complete."
+}
+
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -t|--tx-power) TX_POWER="$2"; shift ;;
+        -i|--interface) INTERFACE="$2"; shift ;;
+        -s|--speed) SPEED_MBIT="$2mbit"; shift ;;
+        -c|--clean) CLEAN=true;;
+        -m|--modify) MODIFY=true;;
+        -a|--auto) AUTO=true;;
+        *) echo "[*] Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+function auto() {
+  if tc qdisc show dev "$INTERFACE" | grep -q "htb"; then
+    CLEAN=true
+    SETUP=false
+  else
+    SETUP=true
+    CLEAN=false
+  fi
+}
+
+if $AUTO; then
+  auto
+fi
+
+if $CLEAN; then
+  clean
+elif $MODIFY; then
+  modify
+elif $SETUP; then
+  setup
+else
+  echo "[*] Usage: $0 [-s/--speed MBIT=$SPEED_MBIT] [-i/--interface INTERFACE=$INTERFACE] [-c/--clean] [-t/--tx-power TX_POWER=$TX_POWER]"
+  exit 1
+fi
