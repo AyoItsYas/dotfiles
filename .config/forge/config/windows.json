@@ -117,35 +117,15 @@
             "mode": "float"
         },
         {
-            "wmClass": "zen-alpha",
+            "wmClass": "evolution-alarm-notify",
             "mode": "float"
         },
         {
-            "wmClass": "superProductivity",
+            "wmClass": "variety",
             "mode": "float"
         },
         {
-            "wmClass": "org.gnome.Nautilus",
-            "mode": "float"
-        },
-        {
-            "wmClass": "org.gnome.Extensions",
-            "mode": "float"
-        },
-        {
-            "wmClass": "discord",
-            "mode": "float"
-        },
-        {
-            "wmClass": "whatsapp-electron",
-            "mode": "float"
-        },
-        {
-            "wmClass": "org.keepassxc.KeePassXC",
-            "mode": "float"
-        },
-        {
-            "wmClass": "com.github.wwmm.easyeffects",
+            "wmClass": "update-manager",
             "mode": "float"
         },
         {
@@ -153,15 +133,11 @@
             "mode": "float"
         },
         {
-            "wmClass": "org.gnome.Games",
+            "wmClass": "whatsapp-electron",
             "mode": "float"
         },
         {
-            "wmClass": "fdm",
-            "mode": "float"
-        },
-        {
-            "wmClass": "org.pulseaudio.pavucontrol",
+            "wmClass": "org.gnome.Extensions",
             "mode": "float"
         },
         {
@@ -169,55 +145,83 @@
             "mode": "float"
         },
         {
-            "wmClass": "org.gnome.TextEditor",
+            "wmClass": "org.gnome.Nautilus",
             "mode": "float"
         },
         {
-            "wmClass": "gnome-disks",
+            "wmClass": "io.github.alainm23.planify",
             "mode": "float"
         },
         {
-            "wmClass": "MongoDB Compass",
+            "wmClass": "spotify",
             "mode": "float"
         },
         {
-            "wmClass": "org.gnome.Software",
+            "wmClass": "chromium-browser",
             "mode": "float"
         },
         {
-            "wmClass": "org.gnome.baobab",
+            "wmClass": "com.saivert.pwvucontrol",
             "mode": "float"
         },
         {
-            "wmClass": "scrcpy",
+            "wmClass": "thorium-cadlkienfkclaiaibeoongdcgmdikeeg-Profile_2",
             "mode": "float"
         },
         {
-            "wmClass": "com.github.th_ch.youtube_music",
+            "wmClass": "com.github.wwmm.easyeffects",
             "mode": "float"
         },
         {
-            "wmClass": "onedriver-launcher",
+            "wmClass": "org.pipewire.Helvum",
             "mode": "float"
         },
         {
-            "wmClass": "io.github.lact-linux",
+            "wmClass": "Popsicle",
             "mode": "float"
         },
         {
-            "wmClass": "steam",
+            "wmClass": "de.haeckerfelix.Shortwave",
             "mode": "float"
         },
         {
-            "wmClass": "GitKraken",
+            "wmClass": "Gsmartcontrol",
             "mode": "float"
         },
         {
-            "wmClass": "org.bleachbit.BleachBit",
+            "wmClass": "Free Download Manager",
             "mode": "float"
         },
         {
-            "wmClass": "org.gnome.Loupe",
+            "wmClass": "mpv",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.qbittorrent.qBittorrent",
+            "mode": "float"
+        },
+        {
+            "wmClass": "gsconnect-preferences",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.DiskUtility",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Meld",
+            "mode": "float"
+        },
+        {
+            "wmClass": "sol",
+            "mode": "float"
+        },
+        {
+            "wmClass": "thorium-lgnggepjiihbfdbedefdhcffnmhcahbm-Profile_2",
+            "mode": "float"
+        },
+        {
+            "wmClass": "Gufw.py",
             "mode": "float"
         },
         {
@@ -225,7 +229,155 @@
             "mode": "float"
         },
         {
-            "wmClass": "Gufw.py",
+            "wmClass": "srain",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.tweaks",
+            "mode": "float"
+        },
+        {
+            "wmClass": "io.github.ilya_zlobintsev.LACT",
+            "mode": "float"
+        },
+        {
+            "wmClass": "ca.desrt.dconf-editor",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Loupe",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.clocks",
+            "mode": "float"
+        },
+        {
+            "wmClass": "gnome-text-editor",
+            "mode": "float"
+        },
+        {
+            "wmClass": "Usbview",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Console",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Decibels",
+            "mode": "float"
+        },
+        {
+            "wmClass": "elecwhat",
+            "mode": "float"
+        },
+        {
+            "wmClass": "KeePassXC",
+            "mode": "float"
+        },
+        {
+            "wmClass": "com.github.tchx84.Flatseal",
+            "mode": "float"
+        },
+        {
+            "wmClass": "com.github.weclaw1.ImageRoll",
+            "mode": "float"
+        },
+        {
+            "wmClass": "io.github.celluloid_player.Celluloid",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.keepassxc.KeePassXC",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.SystemMonitor",
+            "mode": "float"
+        },
+        {
+            "wmClass": "qt5ct",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.seahorse.Application",
+            "mode": "float"
+        },
+        {
+            "wmClass": "info.mumble.Mumble",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.PowerStats",
+            "mode": "float"
+        },
+        {
+            "wmClass": "PrismLauncher",
+            "mode": "float"
+        },
+        {
+            "wmClass": "vesktop",
+            "mode": "float"
+        },
+        {
+            "wmClass": "steam",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.Terminal",
+            "mode": "float"
+        },
+        {
+            "wmClass": "Thorium-browser",
+            "mode": "float"
+        },
+        {
+            "wmClass": "thorium-agimnkijcaahngcdmfeangaknmldooml-Profile_2",
+            "mode": "float"
+        },
+        {
+            "wmClass": "AppImageLauncherSettings",
+            "mode": "float"
+        },
+        {
+            "wmClass": "discord",
+            "mode": "float"
+        },
+        {
+            "wmClass": "tlpui",
+            "mode": "float"
+        },
+        {
+            "wmClass": "albert",
+            "mode": "float"
+        },
+        {
+            "wmClass": "io.gitlab.adhami3310.Converter",
+            "mode": "float"
+        },
+        {
+            "wmClass": "com.github.iwalton3.jellyfin-media-player",
+            "mode": "float"
+        },
+        {
+            "wmClass": "org.gnome.TextEditor",
+            "mode": "float"
+        },
+        {
+            "wmClass": "Plex",
+            "mode": "float"
+        },
+        {
+            "wmClass": "thorium-gkbbfoajolkmcidehjpheknepnainamd-Profile_2",
+            "mode": "float"
+        },
+        {
+            "wmClass": "thorium-picebhhlijnlefeleilfbanaghjlkkna-Profile_2",
+            "mode": "float"
+        },
+        {
+            "wmClass": "tv.plex.plex-bin",
             "mode": "float"
         }
     ]
