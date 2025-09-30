@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# script to set up ufw rules
+
+ALL_NETWORKS=("LAN" "WLAN" "WAP")
+
+LAN_SUBNET="192.168.1.0/24"
+WLAN_SUBNET="$LAN_SUBNET"
+WAP_SUBNET="10.42.0.0/24"
+ALL_SUBNETS=("$LAN_SUBNET" "$WLAN_SUBNET" "$WAP_SUBNET")
+
+LAN_INTERFACE="enp0s31f6"
+WLAN_INTERFACE="wlan0"
+WAP_INTERFACE="$WLAN_INTERFACE"
+ALL_INTERFACES=("$LAN_INTERFACE" "$WLAN_INTERFACE" "$WAP_INTERFACE")
+
+error-out() {
+    echo "[!] $1"
+    exit 1
+}
+
+if [ "${#ALL_SUBNETS[@]}" -ne "${#ALL_INTERFACES[@]}" ]; then
+  error-out "arrays length mismatch"
+fi
+
+quiet-ufw-wrapper() {
+    sudo ufw "$@" &> /dev/null || error-out "an error occured"
+}
+
+ufw-wrapper() {
+    echo "[*] ${@: -1}"
+    quiet-ufw-wrapper "$@"
+}
+
+yes | quiet-ufw-wrapper reset
+
+# default rules
+ufw-wrapper default deny incoming \
+    comment "block incoming traffic"
+ufw-wrapper default allow outgoing \
+    comment "allow outgoing traffic"
+ufw-wrapper default deny routed \
+    comment "deny routed traffic"
+
+# allow routed traffic through WAP to LAN
+allow-wap-to-lan() {
+    ufw-wrapper route allow in on "$WAP_INTERFACE" from "$WAP_SUBNET" out on "$LAN_INTERFACE" to any port "$@"
+}
+
+ufw-wrapper allow in on "$WAP_INTERFACE" to any port 67 proto udp \
+    comment "allow DHCP traffic through WAP to LAN"
+ufw-wrapper allow in on "$WAP_INTERFACE" from "$WAP_SUBNET" to any port 67:68 proto udp \
+    comment "allow DHCP traffic through WAP to LAN"
+
+# allow routed traffic through WLAN to LAN
+ufw-wrapper route allow in on "$WAP_INTERFACE" from "$WAP_SUBNET" \
+    comment "allow all incoming traffic through WAP to LAN"
+
+ufw-wrapper allow out proto udp to 224.0.0.251 port 5353 \
+    comment "allow outgoing mDNS"
+
+WHATSAPP_TCP="4244,5222,5223,5228,5242,59234,50318"
+WHATSAPP_UDP="3478,45395,59234,50318,41285,49984"
+
+TCP_PORTS="53,80,443,853,3000,5201,12434,$WHATSAPP_TCP,57621"
+UDP_PORTS="53,123,853,5201,$WHATSAPP_UDP,44433,53614,57621"
+
+# 53    - DNS
+# 80    - HTTP
+# 123   - NTP
+# 443   - HTTPS
+# 853   - Secure DNS
+# 3000  - Development HTTP/HTTPS server
+# 5201  - iperf3
+# 12434 - llama-swap
+# 44433,53614,57621 - spotify
+
+for i in "${!ALL_SUBNETS[@]}"; do
+    SUBNET="${ALL_SUBNETS[i]}"
+    INTERFACE="${ALL_INTERFACES[i]}"
+    NETWORK="${ALL_NETWORKS[i]}"
+
+    # limit SSH traffic
+    ufw-wrapper limit in on "$INTERFACE" proto tcp from "$SUBNET" to any port 22 \
+        comment "limit SSH traffic through $NETWORK"
+
+    # qbittorrent
+    ufw-wrapper allow in on "$INTERFACE" to any port 51953 proto udp \
+        comment "allow qBittorrent through $NETWORK"
+    ufw-wrapper allow in on "$INTERFACE" to any port 9000 proto tcp \
+        comment "allow qBittorrent tracker through $NETWORK"
+    ufw-wrapper allow in on "$INTERFACE" to any port 6771 proto udp \
+        comment "allow qBittorrent local peer discovery through $NETWORK"
+
+    # other applications
+    for APP in "kde-connect" "plexmediaserver-all" "syncthing"; do
+        ufw-wrapper allow in on "$INTERFACE" from "$SUBNET" to any app "$APP" \
+            comment "allow $APP through $INTERFACE on $SUBNET"
+    done
+
+    ufw-wrapper allow in on "$INTERFACE" from "$SUBNET" to any port "$TCP_PORTS" proto tcp \
+        comment "allow misc application traffic through $INTERFACE on $SUBNET"
+    ufw-wrapper allow in on "$INTERFACE" from "$SUBNET" to any port "$UDP_PORTS" proto udp \
+        comment "allow misc application traffic through $INTERFACE on $SUBNET"
+done
+
+quiet-ufw-wrapper enable
+quiet-ufw-wrapper logging on
+
+sudo ufw status numbered
